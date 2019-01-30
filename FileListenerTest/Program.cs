@@ -16,13 +16,7 @@ namespace FileListenerTest
             R = new Registro(file);
             while (true)
             {
-                if (R.Actualizar()) //Detecta cambios en el archivo
-                {
-
-                    //R.Mostrar_Registros();
-                    //R.ReenviarRegistrosTemporales();
-                    //R.EnviarNuevosRegistros();
-                }
+                R.Actualizar(); //Detecta cambios en el archivo
                 System.Threading.Thread.Sleep(15000);
                 R.backup = false;
             }
