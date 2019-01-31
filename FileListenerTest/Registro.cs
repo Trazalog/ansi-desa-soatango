@@ -56,24 +56,34 @@ namespace FileListenerTest
             if(File.Exists(targetFileName))File.Delete(targetFileName);
         }
 
-        public Boolean SendToApi(String data) {
-            
-       //     if (new Random().Next(100) % 2 == 0) return false;
-            try
-            {
-                System.Net.WebClient client = new System.Net.WebClient();
+        public Boolean SendToApi(String data)
+        {
+            //if (new Random().Next(100) % 2 == 0) return false;
+            data = JsonConvert.SerializeObject(new Data(data));
+            String url = "http://localhost/restful/index.php/api/example/users";
 
-                client.Headers.Add("content-type", "application/json");//set your header here, you can add multiple headers
+            // create a request HttpWebRequest 
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+            request.KeepAlive = false;
+            request.ProtocolVersion = HttpVersion.Version10;
+            request.Method = "POST"; // turn our request string into a byte stream 
+            byte[] postBytes = Encoding.UTF8.GetBytes(data); // this is important - make sure you specify type this way 
+            request.ContentType = "application/json; charset=UTF-8";
+            request.Accept = "application/json";
+            request.ContentLength = postBytes.Length;
 
-                client.UploadString("http://localhost/restful/index.php/api/example/users", "POST", JsonConvert.SerializeObject(new Data(data)) );
- 
+            try{
+                Stream requestStream = request.GetRequestStream(); // now send it request
+                requestStream.Write(postBytes, 0, postBytes.Length);
+                requestStream.Close(); // grab te response and print it out to the console along with the status code 
                 return true;
             }
-            catch (WebException E) {
-                Console.WriteLine(E.Message.ToString()  );
+            catch (WebException ex){
+                Console.WriteLine(ex.Message.ToString());
                 return false;
             }
         }
+
 
         public void ReenviarRegistrosTemporales(){
 
