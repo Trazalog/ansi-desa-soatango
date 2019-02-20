@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<api context="/services/stock" name="StockService" xmlns="http://ws.apache.org/ns/synapse">
+    <resource methods="POST">
+        <inSequence>
+            <log description="all" level="full"/>
+            <property description="Deposito" name="pDeposito" scope="default" type="STRING" value="1"/>
+            <property description="Talonario" name="pTalonario" scope="default" type="STRING" value="1"/>
+            <property description="Tipo Movimiento" expression="json-eval($.tipoMovimiento)" name="pTipoMovimiento" scope="default" type="STRING"/>
+            <property description="Codigo Barra" expression="json-eval($.codBarra)" name="pCodBarra" scope="default" type="STRING"/>
+            <property description="Orden Corte" expression="json-eval($.ordenCorte)" name="pOrdenCorte" scope="default" type="STRING"/>
+            <dblookup description="Lookup valores">
+                <connection>
+                    <pool>
+                        <driver>com.microsoft.sqlserver.jdbc.SQLServerDriver</driver>
+                        <url>jdbc:sqlserver://pc-pc\SQLEXPRESS:1433;databaseName=EJEMPLO</url>
+                        <user>sa</user>
+                        <password>Axoft</password>
+                    </pool>
+                </connection>
+                <statement>
+                    <sql><![CDATA[SELECT MAX(NCOMP_IN_S)+1 AS numeroComprobante FROM STA14 WHERE T_COMP =?]]></sql>
+                    <parameter expression="get-property('pTipoMovimiento')" type="VARCHAR"/>
+                    <result column="numeroComprobante" name="pNumeroComprobante"/>
+                </statement>
+                <statement>
+                    <sql><![CDATA[select cod_articu from sta11 where cod_barra =?]]></sql>
+                    <parameter expression="get-property('pCodBarra')" type="VARCHAR"/>
+                    <result column="cod_articu" name="pCodArticulo"/>
+                </statement>
+                <statement>
+                    <sql><![CDATA[select count(1) existe from STA19 where COD_ARTICU = ? and COD_DEPOSI =?]]></sql>
+                    <parameter expression="get-property('pCodArticulo')" type="VARCHAR"/>
+                    <parameter expression="get-property('pDeposito')" type="VARCHAR"/>
+                    <result column="existe" name="pExisteEnDeposito"/>
+                </statement>
+                <statement>
+                    <sql><![CDATA[select proximo from sta17 where talonario = ?]]></sql>
+                    <parameter expression="get-property('pTalonario')" type="VARCHAR"/>
+                    <result column="proximo" name="pNumeroTalonario"/>
+                </statement>
+            </dblookup>
+            <log description="comprobante" level="custom">
+                <property expression="fn:concat('numero comp ',get-property('pNumeroComprobante'))" name="comprobante"/>
+                <property expression="get-property('pCodArticulo')" name="ariticulo"/>
+            </log>
+            <dbreport description="Inserta movimiento">
+                <connection>
+                    <pool>
+                        <driver>com.microsoft.sqlserver.jdbc.SQLServerDriver</driver>
+                        <url>jdbc:sqlserver://pc-pc\SQLEXPRESS:1433;databaseName=EJEMPLO</url>
+                        <user>sa</user>
+                        <password>Axoft</password>
+                    </pool>
+                </connection>
+                <statement>
+                    <sql><![CDATA[insert into sta14 (cod_pro_cl,cotiz,exportado,fecha_mov,lote,mon_cte,nro_sucurs, n_comp ,ncomp_in_s,n_remito,observacio,talonario ,t_comp,tcomp_in_s)VALUES ('' ,'1','0' ,GETDATE(),'0',-1,'0' ,?,?,?,?,?,?,'VE')]]></sql>
+                    <parameter expression="get-property('pNumeroComprobante')" type="VARCHAR"/>
+                    <parameter expression="get-property('pNumeroComprobante')" type="VARCHAR"/>
+                    <parameter expression="get-property('pNumeroTalonario')" type="VARCHAR"/>
+                    <parameter expression="get-property('pOrdenCorte')" type="VARCHAR"/>
+                    <parameter expression="get-property('pTalonario')" type="CHAR"/>
+                    <parameter expression="get-property('pTipoMovimiento')" type="CHAR"/>
+                </statement>
+                <statement>
+                    <sql><![CDATA[insert into sta20 (cantidad ,cant_dev ,cant_oc ,cant_pend ,can_equi_v ,cod_articu ,cod_deposi ,deposi_dde ,equivalenc ,fecha_mov ,ncomp_in_s ,n_rengl_oc ,n_rengl_s ,precio ,tipo_mov ,tcomp_in_s) values( ?  ,'0' ,'0' ,?  ,'1' ,?  ,?  ,?  ,'1' ,GETDATE() ,?  ,'0' ,1 ,'0' ,'E' ,'VE')]]></sql>
+                    <parameter expression="get-property('pCantidad')" type="VARCHAR"/>
+                    <parameter expression="get-property('pCantidad')" type="VARCHAR"/>
+                    <parameter expression="get-property('pCodArticulo')" type="VARCHAR"/>
+                    <parameter expression="get-property('pDeposito')" type="VARCHAR"/>
+                    <parameter expression="get-property('pDeposito')" type="VARCHAR"/>
+                    <parameter expression="get-property('pNumeroComprobante')" type="VARCHAR"/>
+                </statement>
+            </dbreport>
+            <switch description="Inserta o actualiza el articulo en el deposito" source="get-property('pExisteEnDeposito')">
+                <case regex="0">
+                    <dbreport description="Inserta articulo en deposito">
+                        <connection>
+                            <pool>
+                                <driver>com.microsoft.sqlserver.jdbc.SQLServerDriver</driver>
+                                <url>jdbc:sqlserver://pc-pc\SQLEXPRESS:1433;databaseName=EJEMPLO</url>
+                                <user>sa</user>
+                                <password>Axoft</password>
+                            </pool>
+                        </connection>
+                        <statement>
+                            <sql><![CDATA[insert into sta19 (cant_stock,COD_ARTICU,COD_DEPOSI) values(?,?,?)]]></sql>
+                            <parameter expression="get-property('pCantidad')" type="VARCHAR"/>
+                            <parameter expression="get-property('pCodArticulo')" type="VARCHAR"/>
+                            <parameter expression="get-property('pDeposito')" type="VARCHAR"/>
+                        </statement>
+                    </dbreport>
+                </case>
+                <default>
+                    <dbreport description="Actualiza stock">
+                        <connection>
+                            <pool>
+                                <driver>com.microsoft.sqlserver.jdbc.SQLServerDriver</driver>
+                                <url>jdbc:sqlserver://pc-pc\SQLEXPRESS:1433;databaseName=EJEMPLO</url>
+                                <user>sa</user>
+                                <password>Axoft</password>
+                            </pool>
+                        </connection>
+                        <statement>
+                            <sql><![CDATA[update sta19 set cant_stock = cant_stock + ? where cod_articu = ? and cod_deposi = ?]]></sql>
+                            <parameter expression="get-property('pCantidad')" type="VARCHAR"/>
+                            <parameter expression="get-property('pCodArticulo')" type="VARCHAR"/>
+                            <parameter expression="get-property('pDeposito')" type="VARCHAR"/>
+                        </statement>
+                        <statement>
+                            <sql><![CDATA[update sta17 set proximo = ? + 1 where talonario = ?]]></sql>
+                            <parameter expression="get-property('pCantidad')" type="VARCHAR"/>
+                            <parameter expression="get-property('pTalonario')" type="VARCHAR"/>
+                        </statement>
+                    </dbreport>
+                </default>
+            </switch>
+            <payloadFactory description="" media-type="json">
+                <format>{&#xd;
+   "response" : {&#xd;
+        "number" : "$1" &#xd;
+                       }&#xd;
+}</format>
+                <args>
+                    <arg evaluator="xml" expression="get-property('pNumeroComprobante')"/>
+                </args>
+            </payloadFactory>
+            <respond/>
+        </inSequence>
+        <outSequence>
+            <send/>
+        </outSequence>
+        <faultSequence/>
+    </resource>
+</api>
