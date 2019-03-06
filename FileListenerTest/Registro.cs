@@ -63,8 +63,7 @@ namespace FileListenerTest
         {
             //if (new Random().Next(100) % 2 == 0) return false;
             data = JsonConvert.SerializeObject(new Data(data));
-            //String url = "http://localhost/restful/index.php/api/example/users";
-
+            Console.WriteLine(data);
             // create a request HttpWebRequest 
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
             request.KeepAlive = false;

@@ -8,13 +8,15 @@ namespace FileListenerTest
 {
     class Program
     {
-        static String file = System.Configuration.ConfigurationSettings.AppSettings["salida"];
+        static String file = System.Configuration.ConfigurationSettings.AppSettings["url_salida"];
         static int tiempo_espera = Int16.Parse(System.Configuration.ConfigurationSettings.AppSettings["tiempo_espera"]);
+        static String idLectora = System.Configuration.ConfigurationSettings.AppSettings["id_lectora"];
         static Registro R;
 
         static void Main(string[] args)
         {
             Console.WriteLine("Proyecto Ansilta: Registros del Archivo Salida");
+            Data.setIdLectora(idLectora);
             R = new Registro(file);
             while (true)
             {

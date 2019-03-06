@@ -7,16 +7,22 @@ namespace FileListenerTest
 {
     class Data
     {
-        public String codigo;
+        public static String idLec;
+        public String idLectora;
+        public String codBarra;
         public int cantidad;
-        public String tipo;
-        public int orden_corte;
+        public String tipoMovimiento;
+        public int ordenCorte;
         public Data(String data) {
             String[] aux = data.Split(',');
-            this.codigo = aux[0];
+            this.idLectora = idLec;
+            this.codBarra = aux[0];
             this.cantidad = Int16.Parse(aux[1]);
-            this.tipo = aux[2];
-            this.orden_corte = Int32.Parse(aux[3]);
+            this.tipoMovimiento = aux[2];
+            this.ordenCorte = Int32.Parse(aux[3]);
+        }
+        public static void setIdLectora(String id){
+            idLec = id;
         }
     }
 }
