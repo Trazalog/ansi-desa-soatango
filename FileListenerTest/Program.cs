@@ -8,16 +8,18 @@ namespace FileListenerTest
 {
     class Program
     {
-        static String file = "F:\\usuarios\\alumno\\Documentos\\Visual Studio 2008\\Projects\\FileListenerTest\\FileListenerTest\\bin\\Debug\\salida.txt";
+        static String file = System.Configuration.ConfigurationSettings.AppSettings["salida"];
+        static int tiempo_espera = Int16.Parse(System.Configuration.ConfigurationSettings.AppSettings["tiempo_espera"]);
         static Registro R;
+
         static void Main(string[] args)
-        {   
+        {
             Console.WriteLine("Proyecto Ansilta: Registros del Archivo Salida");
             R = new Registro(file);
             while (true)
             {
                 R.Actualizar(); //Detecta cambios en el archivo
-                System.Threading.Thread.Sleep(15000);
+                System.Threading.Thread.Sleep(tiempo_espera);
                 R.backup = false;
             }
         }

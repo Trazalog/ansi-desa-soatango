@@ -16,11 +16,14 @@ namespace FileListenerTest
         List<String> registros = new List<String>();
         int cantidad;
         public Boolean backup = false;
+        static String url = System.Configuration.ConfigurationSettings.AppSettings["url_server"];
+        static String archivo_salida = System.Configuration.ConfigurationSettings.AppSettings["archivo_salida"];
+        static String registro_temp = System.Configuration.ConfigurationSettings.AppSettings["registros_temp"];
 
         public Registro(String file)
         {
             this.file = file;
-            cantidad = LeerArchivo("salida.txt", FileShare.Write);
+            cantidad = LeerArchivo(archivo_salida, FileShare.Write);
            // Mostrar_Registros();
  
         }
@@ -30,7 +33,7 @@ namespace FileListenerTest
 
             string targetFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetModules()[0].FullyQualifiedName);
 
-            string targetFileName = Path.Combine(targetFolder, "registros_temp.txt");
+            string targetFileName = Path.Combine(targetFolder, registro_temp);
 
             var fs = new FileStream(targetFileName, FileMode.Append, FileAccess.Write, FileShare.Read);
 
@@ -51,7 +54,7 @@ namespace FileListenerTest
 
             string targetFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetModules()[0].FullyQualifiedName);
 
-            string targetFileName = Path.Combine(targetFolder, "registros_temp.txt");
+            string targetFileName = Path.Combine(targetFolder, registro_temp);
 
             if(File.Exists(targetFileName))File.Delete(targetFileName);
         }
@@ -60,7 +63,7 @@ namespace FileListenerTest
         {
             //if (new Random().Next(100) % 2 == 0) return false;
             data = JsonConvert.SerializeObject(new Data(data));
-            String url = "http://localhost/restful/index.php/api/example/users";
+            //String url = "http://localhost/restful/index.php/api/example/users";
 
             // create a request HttpWebRequest 
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
@@ -87,7 +90,7 @@ namespace FileListenerTest
 
         public void ReenviarRegistrosTemporales(){
 
-            if (!ExisteArchivo("registros_temp.txt") || LeerArchivo("registros_temp.txt", FileShare.ReadWrite)==0) return;
+            if (!ExisteArchivo(registro_temp) || LeerArchivo(registro_temp, FileShare.ReadWrite) == 0) return;
             LimpiarRegistrosTemp();
             foreach (String s in registros)
             {
@@ -106,7 +109,7 @@ namespace FileListenerTest
 
         public bool Actualizar() {
             ReenviarRegistrosTemporales();
-            int aux =  LeerArchivo("salida.txt", FileShare.Write);
+            int aux = LeerArchivo(archivo_salida, FileShare.Write);
             if (this.cantidad != aux)
             {
                     
