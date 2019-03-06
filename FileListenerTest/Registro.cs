@@ -63,7 +63,7 @@ namespace FileListenerTest
         {
             //if (new Random().Next(100) % 2 == 0) return false;
             data = JsonConvert.SerializeObject(new Data(data));
-            Console.WriteLine(data);
+       
             // create a request HttpWebRequest 
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
             request.KeepAlive = false;
@@ -78,7 +78,9 @@ namespace FileListenerTest
                 Stream requestStream = request.GetRequestStream(); // now send it request
                 requestStream.Write(postBytes, 0, postBytes.Length);
                 requestStream.Close(); // grab te response and print it out to the console along with the status code 
-                return true;
+                int cod = (int)((HttpWebResponse)request.GetResponse()).StatusCode;
+                Console.WriteLine("Satus: "+cod);
+                return (cod == 200 || cod == 201 || cod == 202);       
             }
             catch (WebException ex){
                 Console.WriteLine(ex.Message.ToString());
