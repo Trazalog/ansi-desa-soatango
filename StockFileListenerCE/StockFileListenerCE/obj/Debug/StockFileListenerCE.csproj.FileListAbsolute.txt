@@ -1,0 +1,12 @@
+F:\usuarios\alumno\Documentos\Visual Studio 2008\Projects\StockFileListenerCE\StockFileListenerCE\bin\Debug\StockFileListenerCE.exe
+F:\usuarios\alumno\Documentos\Visual Studio 2008\Projects\StockFileListenerCE\StockFileListenerCE\bin\Debug\StockFileListenerCE.pdb
+F:\usuarios\alumno\Documentos\Visual Studio 2008\Projects\StockFileListenerCE\StockFileListenerCE\bin\Debug\mscorlib.dll
+F:\usuarios\alumno\Documentos\Visual Studio 2008\Projects\StockFileListenerCE\StockFileListenerCE\bin\Debug\System.Core.dll
+F:\usuarios\alumno\Documentos\Visual Studio 2008\Projects\StockFileListenerCE\StockFileListenerCE\bin\Debug\System.Data.DataSetExtensions.dll
+F:\usuarios\alumno\Documentos\Visual Studio 2008\Projects\StockFileListenerCE\StockFileListenerCE\bin\Debug\System.Data.dll
+F:\usuarios\alumno\Documentos\Visual Studio 2008\Projects\StockFileListenerCE\StockFileListenerCE\bin\Debug\System.dll
+F:\usuarios\alumno\Documentos\Visual Studio 2008\Projects\StockFileListenerCE\StockFileListenerCE\bin\Debug\System.Xml.dll
+F:\usuarios\alumno\Documentos\Visual Studio 2008\Projects\StockFileListenerCE\StockFileListenerCE\bin\Debug\System.Xml.Linq.dll
+F:\usuarios\alumno\Documentos\Visual Studio 2008\Projects\StockFileListenerCE\StockFileListenerCE\obj\Debug\ResolveAssemblyReference.cache
+F:\usuarios\alumno\Documentos\Visual Studio 2008\Projects\StockFileListenerCE\StockFileListenerCE\obj\Debug\StockFileListenerCE.exe
+F:\usuarios\alumno\Documentos\Visual Studio 2008\Projects\StockFileListenerCE\StockFileListenerCE\obj\Debug\StockFileListenerCE.pdb

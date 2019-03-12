@@ -24,5 +24,11 @@ namespace FileListenerTest
         public static void setIdLectora(String id){
             idLec = id;
         }
+
+        public override string ToString()
+        {
+            return "{\"idLectora\":\"" + idLectora + "\",\"codBarra\":\"" + codBarra + "\",\"cantidad\":\"" + cantidad + "\",\"tipoMovimiento\":\"" + tipoMovimiento + "\",\"ordenCorte\":\"" + ordenCorte + "\"}";
+        }
+
     }
 }

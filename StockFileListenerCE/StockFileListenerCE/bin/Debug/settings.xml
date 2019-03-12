@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<configuration>
+    <appSettings>
+	<add key="id_lectora" value="lectora_001" />
+	<add key="url_server" value="http://pc-pc:8280/services/stock/stockMovement" />
+	<add key="archivo_salida" value="salida.txt" />
+	<add key="tiempo_espera" value="5000" />
+    </appSettings>
+</configuration>
