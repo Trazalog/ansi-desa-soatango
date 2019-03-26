@@ -2,6 +2,7 @@
 <api context="/services/stock" name="StockService" xmlns="http://ws.apache.org/ns/synapse">
     <resource methods="POST">
         <inSequence>
+            <transaction action="new" description="Begin Transaction"/>
             <log description="all" level="full"/>
             <property description="Deposito" name="pDeposito" scope="default" type="STRING" value="1"/>
             <property description="Talonario" name="pTalonario" scope="default" type="STRING" value="1"/>
@@ -70,6 +71,11 @@
                     <parameter expression="get-property('pDeposito')" type="VARCHAR"/>
                     <parameter expression="get-property('pNumeroComprobante')" type="VARCHAR"/>
                 </statement>
+                <statement>
+                    <sql><![CDATA[update sta17 set proximo = ? + 1 where talonario = ?]]></sql>
+                    <parameter expression="get-property('pNumeroTalonario')" type="VARCHAR"/>
+                    <parameter expression="get-property('pTalonario')" type="VARCHAR"/>
+                </statement>
             </dbreport>
             <switch description="Inserta o actualiza el articulo en el deposito" source="get-property('pExisteEnDeposito')">
                 <case regex="0">
@@ -106,14 +112,10 @@
                             <parameter expression="get-property('pCodArticulo')" type="VARCHAR"/>
                             <parameter expression="get-property('pDeposito')" type="VARCHAR"/>
                         </statement>
-                        <statement>
-                            <sql><![CDATA[update sta17 set proximo = ? + 1 where talonario = ?]]></sql>
-                            <parameter expression="get-property('pCantidad')" type="VARCHAR"/>
-                            <parameter expression="get-property('pTalonario')" type="VARCHAR"/>
-                        </statement>
                     </dbreport>
                 </default>
             </switch>
+            <transaction action="commit" description="Commit"/>
             <payloadFactory description="" media-type="json">
                 <format>{&#xd;
    "response" : {&#xd;
@@ -127,6 +129,7 @@
             <respond/>
         </inSequence>
         <outSequence>
+            <transaction action="rollback" description="Rollback"/>
             <send/>
         </outSequence>
         <faultSequence/>
