@@ -5,17 +5,28 @@
             <transaction action="new" description="Begin Transaction"/>
             <log description="all" level="full"/>
             <property description="Deposito" name="pDeposito" scope="default" type="STRING" value="1"/>
-            <property description="Talonario" name="pTalonario" scope="default" type="STRING" value="1"/>
+            <property description="Talonario" name="pTalonario" scope="default" type="STRING" value="8"/>
             <property description="Tipo Movimiento" expression="json-eval($.tipoMovimiento)" name="pTipoMovimiento" scope="default" type="STRING"/>
+            <property description="Cantidad" expression="json-eval($.cantidad)" name="pCantidad" scope="default" type="STRING"/>
+            <script description="Cantidad negativa?" language="js"><![CDATA[var tipoMov = mc.getProperty("pTipoMovimiento");
+            	var cant = mc.getProperty("pCantidad");
+            	if (tipoMov=="LES"){
+            	            mc.setProperty("pCantidad", cant * -1);
+            	}]]></script>
+            <switch source="get-property('pTipoMovimiento')">
+                <case regex="LEE">
+                    <property description="tipo mov E" name="pTipoMovAbreviado" scope="default" type="STRING" value="E"/>
+                </case>
+                <default>
+                    <property name="pTipoMovAbreviado" scope="default" type="STRING" value="S"/>
+                </default>
+            </switch>
             <property description="Codigo Barra" expression="json-eval($.codBarra)" name="pCodBarra" scope="default" type="STRING"/>
             <property description="Orden Corte" expression="json-eval($.ordenCorte)" name="pOrdenCorte" scope="default" type="STRING"/>
             <dblookup description="Lookup valores">
                 <connection>
                     <pool>
-                        <driver>com.microsoft.sqlserver.jdbc.SQLServerDriver</driver>
-                        <url>jdbc:sqlserver://pc-pc\SQLEXPRESS:1433;databaseName=EJEMPLO</url>
-                        <user>sa</user>
-                        <password>Axoft</password>
+                        <dsName>TangoDS</dsName>
                     </pool>
                 </connection>
                 <statement>
@@ -40,75 +51,77 @@
                     <result column="proximo" name="pNumeroTalonario"/>
                 </statement>
             </dblookup>
-            <log description="comprobante" level="custom">
-                <property expression="fn:concat('numero comp ',get-property('pNumeroComprobante'))" name="comprobante"/>
-                <property expression="get-property('pCodArticulo')" name="ariticulo"/>
+            <script description="comprobante vacio?" language="js"><![CDATA[var comp = mc.getProperty("pNumeroComprobante");
+            	if (comp==""||comp == null ){
+            	            mc.setProperty("pNumeroComprobante", 1);
+            	}]]></script>
+            <log description="Datos operacion" level="custom">
+                <property expression="get-property('pNumeroComprobante')" name="comprobante"/>
+                <property expression="get-property('pCodArticulo')" name="articulo"/>
+                <property expression="get-property('pCantidad')" name="cantidad"/>
+                <property expression="get-property('pTipoMovAbreviado')" name="tipomovabreviado"/>
+                <property expression="get-property('pDeposito')" name="deposito"/>
+                <property expression="get-property('pTalonario')" name="talonario"/>
+                <property expression="get-property('pExisteEnDeposito')" name="existeendeposito"/>
+                <property expression="get-property('pTipoMovimiento')" name="tipomov"/>
             </log>
-            <dbreport description="Inserta movimiento">
+            <dbreport description="Inserta movimiento" useTransaction="true">
                 <connection>
                     <pool>
-                        <driver>com.microsoft.sqlserver.jdbc.SQLServerDriver</driver>
-                        <url>jdbc:sqlserver://pc-pc\SQLEXPRESS:1433;databaseName=EJEMPLO</url>
-                        <user>sa</user>
-                        <password>Axoft</password>
+                        <dsName>TangoDS</dsName>
                     </pool>
                 </connection>
                 <statement>
                     <sql><![CDATA[insert into sta14 (cod_pro_cl,cotiz,exportado,fecha_mov,lote,mon_cte,nro_sucurs, n_comp ,ncomp_in_s,n_remito,observacio,talonario ,t_comp,tcomp_in_s)VALUES ('' ,'1','0' ,GETDATE(),'0',-1,'0' ,?,?,?,?,?,?,'VE')]]></sql>
-                    <parameter expression="get-property('pNumeroComprobante')" type="VARCHAR"/>
-                    <parameter expression="get-property('pNumeroComprobante')" type="VARCHAR"/>
-                    <parameter expression="get-property('pNumeroTalonario')" type="VARCHAR"/>
+                    <parameter expression="get-property('pNumeroComprobante')" type="NUMERIC"/>
+                    <parameter expression="get-property('pNumeroComprobante')" type="NUMERIC"/>
+                    <parameter expression="get-property('pNumeroTalonario')" type="NUMERIC"/>
                     <parameter expression="get-property('pOrdenCorte')" type="VARCHAR"/>
-                    <parameter expression="get-property('pTalonario')" type="CHAR"/>
-                    <parameter expression="get-property('pTipoMovimiento')" type="CHAR"/>
+                    <parameter expression="get-property('pTalonario')" type="VARCHAR"/>
+                    <parameter expression="get-property('pTipoMovimiento')" type="VARCHAR"/>
                 </statement>
                 <statement>
-                    <sql><![CDATA[insert into sta20 (cantidad ,cant_dev ,cant_oc ,cant_pend ,can_equi_v ,cod_articu ,cod_deposi ,deposi_dde ,equivalenc ,fecha_mov ,ncomp_in_s ,n_rengl_oc ,n_rengl_s ,precio ,tipo_mov ,tcomp_in_s) values( ?  ,'0' ,'0' ,?  ,'1' ,?  ,?  ,?  ,'1' ,GETDATE() ,?  ,'0' ,1 ,'0' ,'E' ,'VE')]]></sql>
-                    <parameter expression="get-property('pCantidad')" type="VARCHAR"/>
-                    <parameter expression="get-property('pCantidad')" type="VARCHAR"/>
+                    <sql><![CDATA[insert into sta20 (cantidad ,cant_dev ,cant_oc ,cant_pend ,can_equi_v ,cod_articu ,cod_deposi ,deposi_dde ,equivalenc ,fecha_mov ,ncomp_in_s ,n_rengl_oc ,n_rengl_s ,precio ,tipo_mov ,tcomp_in_s) values( ?  ,'0' ,'0' ,?  ,'1' ,?  ,?  ,?  ,'1' ,GETDATE() ,?  ,'0' ,1 ,'0' ,?,'VE')]]></sql>
+                    <parameter expression="get-property('pCantidad')" type="NUMERIC"/>
+                    <parameter expression="get-property('pCantidad')" type="NUMERIC"/>
                     <parameter expression="get-property('pCodArticulo')" type="VARCHAR"/>
                     <parameter expression="get-property('pDeposito')" type="VARCHAR"/>
                     <parameter expression="get-property('pDeposito')" type="VARCHAR"/>
-                    <parameter expression="get-property('pNumeroComprobante')" type="VARCHAR"/>
+                    <parameter expression="get-property('pNumeroComprobante')" type="NUMERIC"/>
+                    <parameter expression="get-property('pTipoMovAbreviado')" type="VARCHAR"/>
                 </statement>
                 <statement>
                     <sql><![CDATA[update sta17 set proximo = ? + 1 where talonario = ?]]></sql>
-                    <parameter expression="get-property('pNumeroTalonario')" type="VARCHAR"/>
+                    <parameter expression="get-property('pNumeroTalonario')" type="NUMERIC"/>
                     <parameter expression="get-property('pTalonario')" type="VARCHAR"/>
                 </statement>
             </dbreport>
             <switch description="Inserta o actualiza el articulo en el deposito" source="get-property('pExisteEnDeposito')">
                 <case regex="0">
-                    <dbreport description="Inserta articulo en deposito">
+                    <dbreport description="Inserta articulo en deposito" useTransaction="true">
                         <connection>
                             <pool>
-                                <driver>com.microsoft.sqlserver.jdbc.SQLServerDriver</driver>
-                                <url>jdbc:sqlserver://pc-pc\SQLEXPRESS:1433;databaseName=EJEMPLO</url>
-                                <user>sa</user>
-                                <password>Axoft</password>
+                                <dsName>TangoDS</dsName>
                             </pool>
                         </connection>
                         <statement>
                             <sql><![CDATA[insert into sta19 (cant_stock,COD_ARTICU,COD_DEPOSI) values(?,?,?)]]></sql>
-                            <parameter expression="get-property('pCantidad')" type="VARCHAR"/>
+                            <parameter expression="get-property('pCantidad')" type="NUMERIC"/>
                             <parameter expression="get-property('pCodArticulo')" type="VARCHAR"/>
                             <parameter expression="get-property('pDeposito')" type="VARCHAR"/>
                         </statement>
                     </dbreport>
                 </case>
                 <default>
-                    <dbreport description="Actualiza stock">
+                    <dbreport description="Actualiza stock" useTransaction="true">
                         <connection>
                             <pool>
-                                <driver>com.microsoft.sqlserver.jdbc.SQLServerDriver</driver>
-                                <url>jdbc:sqlserver://pc-pc\SQLEXPRESS:1433;databaseName=EJEMPLO</url>
-                                <user>sa</user>
-                                <password>Axoft</password>
+                                <dsName>TangoDS</dsName>
                             </pool>
                         </connection>
                         <statement>
                             <sql><![CDATA[update sta19 set cant_stock = cant_stock + ? where cod_articu = ? and cod_deposi = ?]]></sql>
-                            <parameter expression="get-property('pCantidad')" type="VARCHAR"/>
+                            <parameter expression="get-property('pCantidad')" type="NUMERIC"/>
                             <parameter expression="get-property('pCodArticulo')" type="VARCHAR"/>
                             <parameter expression="get-property('pDeposito')" type="VARCHAR"/>
                         </statement>
@@ -119,7 +132,7 @@
             <payloadFactory description="" media-type="json">
                 <format>{&#xd;
    "response" : {&#xd;
-        "number" : "$1" &#xd;
+        "numeroComprobante" : "$1" &#xd;
                        }&#xd;
 }</format>
                 <args>
@@ -128,10 +141,31 @@
             </payloadFactory>
             <respond/>
         </inSequence>
-        <outSequence>
+        <outSequence/>
+        <faultSequence>
+            <log description="Informe de error" level="custom">
+                <property name="text" value="Error Inesperado"/>
+                <property expression="get-property('ERROR_MESSAGE')" name="message"/>
+                <property expression="get-property('ERROR_CODE')" name="code"/>
+                <property expression="get-property('ERROR_DETAIL')" name="detail"/>
+                <property expression="get-property('ERROR_EXCEPTION')" name="exception"/>
+            </log>
             <transaction action="rollback" description="Rollback"/>
-            <send/>
-        </outSequence>
-        <faultSequence/>
+            <payloadFactory description="Mensaje error" media-type="json">
+                <format>{&#xd;
+   "response" : {&#xd;
+        "errorMessage" : "$1" &#xd;
+        "errorCode" : "$2" &#xd;
+
+                       }&#xd;
+}</format>
+                <args>
+                    <arg evaluator="xml" expression="get-property('ERROR_MESSAGE')"/>
+                    <arg evaluator="xml" expression="get-property('ERROR_CODE')"/>
+                </args>
+            </payloadFactory>
+            <property description="Respuesta 404" name="HTTP_SC" scope="axis2" type="STRING" value="404"/>
+            <respond description="Respuesta error"/>
+        </faultSequence>
     </resource>
 </api>
