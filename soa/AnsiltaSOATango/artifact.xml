@@ -2,4 +2,10 @@
     <artifact name="StockService" groupId="com.example.AnsiltaSOATango.api" version="1.0.0" type="synapse/api" serverRole="EnterpriseServiceBus">
         <file>src/main/synapse-config/api/StockService.xml</file>
     </artifact>
+    <artifact name="TangoStockService" groupId="com.example.AnsiltaSOATango.endpoint" version="1.0.0" type="synapse/endpoint" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/endpoints/TangoStockService.xml</file>
+    </artifact>
+    <artifact name="TangoDSS" groupId="com.example.AnsiltaSOATango.endpoint" version="1.0.0" type="synapse/endpoint" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/endpoints/TangoDSS.xml</file>
+    </artifact>
 </artifacts>

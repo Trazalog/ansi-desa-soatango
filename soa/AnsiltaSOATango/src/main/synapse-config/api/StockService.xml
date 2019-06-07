@@ -2,40 +2,50 @@
 <api context="/services/stock" name="StockService" xmlns="http://ws.apache.org/ns/synapse">
     <resource methods="POST">
         <inSequence>
-            <transaction action="new" description="Begin Transaction"/>
             <log description="all" level="full"/>
-            <property description="Deposito" name="pDeposito" scope="default" type="STRING" value="1"/>
-            <property description="Talonario" name="pTalonario" scope="default" type="STRING" value="8"/>
+            <property description="Deposito" name="pDeposito" scope="default" type="STRING" value="2"/>
+            <property description="Talonario" name="pTalonario" scope="default" type="STRING" value="2"/>
             <property description="Tipo Movimiento" expression="json-eval($.tipoMovimiento)" name="pTipoMovimiento" scope="default" type="STRING"/>
             <property description="Cantidad" expression="json-eval($.cantidad)" name="pCantidad" scope="default" type="STRING"/>
-            <script description="Cantidad negativa?" language="js"><![CDATA[var tipoMov = mc.getProperty("pTipoMovimiento");
-            	var cant = mc.getProperty("pCantidad");
-            	if (tipoMov=="LES"){
-            	            mc.setProperty("pCantidad", cant * -1);
-            	}]]></script>
+            <property description="Codigo Barra" expression="json-eval($.codBarra)" name="pCodBarra" scope="default" type="STRING"/>
+            <property description="Cod Articulo" name="pCodArticulo" scope="default" type="STRING" value="N"/>
+            <log description="Previo db" level="custom">
+                <property expression="get-property('pNumeroComprobante')" name="comprobante"/>
+                <property expression="get-property('pCodArticulo')" name="articulo"/>
+                <property expression="get-property('pCantidad')" name="cantidad"/>
+                <property expression="get-property('pTipoMovAbreviado')" name="tipomovabreviado"/>
+                <property expression="get-property('pDeposito')" name="deposito"/>
+                <property expression="get-property('pTalonario')" name="talonario"/>
+                <property expression="get-property('pExisteEnDeposito')" name="existeendeposito"/>
+                <property expression="get-property('pTipoMovimiento')" name="tipomov"/>
+                <property expression="get-property('pNumeroTalonario')" name="numerotalonario"/>
+                <property expression="get-property('pCodBarra')" name="codbarra"/>
+            </log>
             <switch source="get-property('pTipoMovimiento')">
-                <case regex="LEE">
+                <case regex="I">
                     <property description="tipo mov E" name="pTipoMovAbreviado" scope="default" type="STRING" value="E"/>
                 </case>
                 <default>
                     <property name="pTipoMovAbreviado" scope="default" type="STRING" value="S"/>
                 </default>
             </switch>
-            <property description="Codigo Barra" expression="json-eval($.codBarra)" name="pCodBarra" scope="default" type="STRING"/>
             <property description="Orden Corte" expression="json-eval($.ordenCorte)" name="pOrdenCorte" scope="default" type="STRING"/>
             <dblookup description="Lookup valores">
                 <connection>
                     <pool>
-                        <dsName>TangoDS</dsName>
+                        <driver>com.microsoft.sqlserver.jdbc.SQLServerDriver</driver>
+                        <url>jdbc:sqlserver://pc-pc\SQLEXPRESS:1433;databaseName=EJEMPLO</url>
+                        <user>sa</user>
+                        <password>Axoft</password>
                     </pool>
                 </connection>
                 <statement>
-                    <sql><![CDATA[SELECT MAX(NCOMP_IN_S)+1 AS numeroComprobante FROM STA14 WHERE T_COMP =?]]></sql>
+                    <sql><![CDATA[SELECT MAX(cast(NCOMP_IN_S as int))+1 AS numeroComprobante FROM STA14 WHERE T_COMP =?]]></sql>
                     <parameter expression="get-property('pTipoMovimiento')" type="VARCHAR"/>
                     <result column="numeroComprobante" name="pNumeroComprobante"/>
                 </statement>
                 <statement>
-                    <sql><![CDATA[select cod_articu from sta11 where cod_barra =?]]></sql>
+                    <sql><![CDATA[select cod_articu from sta11 where cod_articu =?]]></sql>
                     <parameter expression="get-property('pCodBarra')" type="VARCHAR"/>
                     <result column="cod_articu" name="pCodArticulo"/>
                 </statement>
@@ -46,15 +56,11 @@
                     <result column="existe" name="pExisteEnDeposito"/>
                 </statement>
                 <statement>
-                    <sql><![CDATA[select proximo from sta17 where talonario = ?]]></sql>
+                    <sql><![CDATA[select convert (int,proximo) as prox from sta17 where talonario = ?]]></sql>
                     <parameter expression="get-property('pTalonario')" type="VARCHAR"/>
-                    <result column="proximo" name="pNumeroTalonario"/>
+                    <result column="prox" name="pNumeroTalonario"/>
                 </statement>
             </dblookup>
-            <script description="comprobante vacio?" language="js"><![CDATA[var comp = mc.getProperty("pNumeroComprobante");
-            	if (comp==""||comp == null ){
-            	            mc.setProperty("pNumeroComprobante", 1);
-            	}]]></script>
             <log description="Datos operacion" level="custom">
                 <property expression="get-property('pNumeroComprobante')" name="comprobante"/>
                 <property expression="get-property('pCodArticulo')" name="articulo"/>
@@ -64,108 +70,152 @@
                 <property expression="get-property('pTalonario')" name="talonario"/>
                 <property expression="get-property('pExisteEnDeposito')" name="existeendeposito"/>
                 <property expression="get-property('pTipoMovimiento')" name="tipomov"/>
+                <property expression="get-property('pNumeroTalonario')" name="numerotalonario"/>
             </log>
-            <dbreport description="Inserta movimiento" useTransaction="true">
-                <connection>
-                    <pool>
-                        <dsName>TangoDS</dsName>
-                    </pool>
-                </connection>
-                <statement>
-                    <sql><![CDATA[insert into sta14 (cod_pro_cl,cotiz,exportado,fecha_mov,lote,mon_cte,nro_sucurs, n_comp ,ncomp_in_s,n_remito,observacio,talonario ,t_comp,tcomp_in_s)VALUES ('' ,'1','0' ,GETDATE(),'0',-1,'0' ,?,?,?,?,?,?,'VE')]]></sql>
-                    <parameter expression="get-property('pNumeroComprobante')" type="NUMERIC"/>
-                    <parameter expression="get-property('pNumeroComprobante')" type="NUMERIC"/>
-                    <parameter expression="get-property('pNumeroTalonario')" type="NUMERIC"/>
-                    <parameter expression="get-property('pOrdenCorte')" type="VARCHAR"/>
-                    <parameter expression="get-property('pTalonario')" type="VARCHAR"/>
-                    <parameter expression="get-property('pTipoMovimiento')" type="VARCHAR"/>
-                </statement>
-                <statement>
-                    <sql><![CDATA[insert into sta20 (cantidad ,cant_dev ,cant_oc ,cant_pend ,can_equi_v ,cod_articu ,cod_deposi ,deposi_dde ,equivalenc ,fecha_mov ,ncomp_in_s ,n_rengl_oc ,n_rengl_s ,precio ,tipo_mov ,tcomp_in_s) values( ?  ,'0' ,'0' ,?  ,'1' ,?  ,?  ,?  ,'1' ,GETDATE() ,?  ,'0' ,1 ,'0' ,?,'VE')]]></sql>
-                    <parameter expression="get-property('pCantidad')" type="NUMERIC"/>
-                    <parameter expression="get-property('pCantidad')" type="NUMERIC"/>
-                    <parameter expression="get-property('pCodArticulo')" type="VARCHAR"/>
-                    <parameter expression="get-property('pDeposito')" type="VARCHAR"/>
-                    <parameter expression="get-property('pDeposito')" type="VARCHAR"/>
-                    <parameter expression="get-property('pNumeroComprobante')" type="NUMERIC"/>
-                    <parameter expression="get-property('pTipoMovAbreviado')" type="VARCHAR"/>
-                </statement>
-                <statement>
-                    <sql><![CDATA[update sta17 set proximo = ? + 1 where talonario = ?]]></sql>
-                    <parameter expression="get-property('pNumeroTalonario')" type="NUMERIC"/>
-                    <parameter expression="get-property('pTalonario')" type="VARCHAR"/>
-                </statement>
-            </dbreport>
             <switch description="Inserta o actualiza el articulo en el deposito" source="get-property('pExisteEnDeposito')">
                 <case regex="0">
-                    <dbreport description="Inserta articulo en deposito" useTransaction="true">
-                        <connection>
-                            <pool>
-                                <dsName>TangoDS</dsName>
-                            </pool>
-                        </connection>
-                        <statement>
-                            <sql><![CDATA[insert into sta19 (cant_stock,COD_ARTICU,COD_DEPOSI) values(?,?,?)]]></sql>
-                            <parameter expression="get-property('pCantidad')" type="NUMERIC"/>
-                            <parameter expression="get-property('pCodArticulo')" type="VARCHAR"/>
-                            <parameter expression="get-property('pDeposito')" type="VARCHAR"/>
-                        </statement>
-                    </dbreport>
+                    <property name="FORCE_ERROR_ON_SOAP_FAULT" scope="default" type="STRING" value="true"/>
+                    <payloadFactory media-type="xml">
+                        <format>
+                            <p:request_box xmlns:p="http://ws.wso2.org/dataservice">
+                                <p:crearMovimientoStock xmlns="http://ws.wso2.org/dataservice">
+                                    <nroTalonario xmlns:xs="http://ws.wso2.org/dataservice">$1</nroTalonario>
+                                    <numComprobante xmlns:xs="http://ws.wso2.org/dataservice">$2</numComprobante>
+                                    <tipoMov xmlns:xs="http://ws.wso2.org/dataservice">$3</tipoMov>
+                                    <ordenCorte xmlns:xs="http://ws.wso2.org/dataservice">$4</ordenCorte>
+                                    <talonario xmlns:xs="http://ws.wso2.org/dataservice">$5</talonario>
+                                </p:crearMovimientoStock>
+                                <p:crearMovimientoCabeceraStock xmlns="http://ws.wso2.org/dataservice">
+                                    <cantidad xmlns:xs="http://ws.wso2.org/dataservice">$6</cantidad>
+                                    <cantidadPend xmlns:xs="http://ws.wso2.org/dataservice">$7</cantidadPend>
+                                    <codArticulo xmlns:xs="http://ws.wso2.org/dataservice">$8</codArticulo>
+                                    <deposito xmlns:xs="http://ws.wso2.org/dataservice">$9</deposito>
+                                    <depositoDDE xmlns:xs="http://ws.wso2.org/dataservice">$10</depositoDDE>
+                                    <numComprobante xmlns:xs="http://ws.wso2.org/dataservice">$11</numComprobante>
+                                    <tipoMovimientoAbreviado xmlns:xs="http://ws.wso2.org/dataservice">$12</tipoMovimientoAbreviado>
+                                </p:crearMovimientoCabeceraStock>
+                                <p:updTalonario xmlns="http://ws.wso2.org/dataservice">
+                                    <numTalonario xmlns:xs="http://ws.wso2.org/dataservice">$13</numTalonario>
+                                    <talonario xmlns:xs="http://ws.wso2.org/dataservice">$14</talonario>
+                                </p:updTalonario>
+                                <p:crearArticuloDeposito xmlns="http://ws.wso2.org/dataservice">
+                                    <cantidad xmlns:xs="http://ws.wso2.org/dataservice">$15</cantidad>
+                                    <codArticulo xmlns:xs="http://ws.wso2.org/dataservice">$16</codArticulo>
+                                    <deposito xmlns:xs="http://ws.wso2.org/dataservice">$17</deposito>
+                                </p:crearArticuloDeposito>
+                            </p:request_box>
+                        </format>
+                        <args>
+                            <arg evaluator="xml" expression="get-property('pNumeroTalonario')"/>
+                            <arg evaluator="xml" expression="get-property('pNumeroComprobante')"/>
+                            <arg evaluator="xml" expression="get-property('pTipoMovimiento')"/>
+                            <arg evaluator="xml" expression="get-property('pOrdenCorte')"/>
+                            <arg evaluator="xml" expression="get-property('pTalonario')"/>
+                            <arg evaluator="xml" expression="get-property('pCantidad')"/>
+                            <arg evaluator="xml" expression="get-property('pCantidad')"/>
+                            <arg evaluator="xml" expression="get-property('pCodArticulo')"/>
+                            <arg evaluator="xml" expression="get-property('pDeposito')"/>
+                            <arg evaluator="xml" expression="get-property('pDeposito')"/>
+                            <arg evaluator="xml" expression="get-property('pNumeroComprobante')"/>
+                            <arg evaluator="xml" expression="get-property('pTipoMovAbreviado')"/>
+                            <arg evaluator="xml" expression="get-property('pNumeroTalonario')"/>
+                            <arg evaluator="xml" expression="get-property('pTalonario')"/>
+                            <arg evaluator="xml" expression="get-property('pCantidad')"/>
+                            <arg evaluator="xml" expression="get-property('pCodArticulo')"/>
+                            <arg evaluator="xml" expression="get-property('pDeposito')"/>
+                        </args>
+                    </payloadFactory>
+                    <header name="Action" scope="default" value="urn:request_box"/>
+                    <log description="Mensaje final ins" level="full"/>
+                    <send description="">
+                        <endpoint key="TangoDSS"/>
+                    </send>
                 </case>
                 <default>
-                    <dbreport description="Actualiza stock" useTransaction="true">
-                        <connection>
-                            <pool>
-                                <dsName>TangoDS</dsName>
-                            </pool>
-                        </connection>
-                        <statement>
-                            <sql><![CDATA[update sta19 set cant_stock = cant_stock + ? where cod_articu = ? and cod_deposi = ?]]></sql>
-                            <parameter expression="get-property('pCantidad')" type="NUMERIC"/>
-                            <parameter expression="get-property('pCodArticulo')" type="VARCHAR"/>
-                            <parameter expression="get-property('pDeposito')" type="VARCHAR"/>
-                        </statement>
-                    </dbreport>
+                    <payloadFactory media-type="xml">
+                        <format>
+                            <p:request_box xmlns:p="http://ws.wso2.org/dataservice">
+                                <p:crearMovimientoStock xmlns="http://ws.wso2.org/dataservice">
+                                    <nroTalonario xmlns:xs="http://ws.wso2.org/dataservice">$1</nroTalonario>
+                                    <numComprobante xmlns:xs="http://ws.wso2.org/dataservice">$2</numComprobante>
+                                    <tipoMov xmlns:xs="http://ws.wso2.org/dataservice">$3</tipoMov>
+                                    <ordenCorte xmlns:xs="http://ws.wso2.org/dataservice">$4</ordenCorte>
+                                    <talonario xmlns:xs="http://ws.wso2.org/dataservice">$5</talonario>
+                                </p:crearMovimientoStock>
+                                <p:crearMovimientoCabeceraStock xmlns="http://ws.wso2.org/dataservice">
+                                    <cantidad xmlns:xs="http://ws.wso2.org/dataservice">$6</cantidad>
+                                    <cantidadPend xmlns:xs="http://ws.wso2.org/dataservice">$7</cantidadPend>
+                                    <codArticulo xmlns:xs="http://ws.wso2.org/dataservice">$8</codArticulo>
+                                    <deposito xmlns:xs="http://ws.wso2.org/dataservice">$9</deposito>
+                                    <depositoDDE xmlns:xs="http://ws.wso2.org/dataservice">$10</depositoDDE>
+                                    <numComprobante xmlns:xs="http://ws.wso2.org/dataservice">$11</numComprobante>
+                                    <tipoMovimientoAbreviado xmlns:xs="http://ws.wso2.org/dataservice">$12</tipoMovimientoAbreviado>
+                                </p:crearMovimientoCabeceraStock>
+                                <p:updTalonario xmlns="http://ws.wso2.org/dataservice">
+                                    <numTalonario xmlns:xs="http://ws.wso2.org/dataservice">$13</numTalonario>
+                                    <talonario xmlns:xs="http://ws.wso2.org/dataservice">$14</talonario>
+                                </p:updTalonario>
+                                <p:updArticuloDeposito xmlns="http://ws.wso2.org/dataservice">
+                                    <cantidad xmlns:xs="http://ws.wso2.org/dataservice">$15</cantidad>
+                                    <codArticulo xmlns:xs="http://ws.wso2.org/dataservice">$16</codArticulo>
+                                    <deposito xmlns:xs="http://ws.wso2.org/dataservice">$17</deposito>
+                                </p:updArticuloDeposito>
+                            </p:request_box>
+                        </format>
+                        <args>
+                            <arg evaluator="xml" expression="get-property('pNumeroTalonario')"/>
+                            <arg evaluator="xml" expression="get-property('pNumeroComprobante')"/>
+                            <arg evaluator="xml" expression="get-property('pTipoMovimiento')"/>
+                            <arg evaluator="xml" expression="get-property('pOrdenCorte')"/>
+                            <arg evaluator="xml" expression="get-property('pTalonario')"/>
+                            <arg evaluator="xml" expression="get-property('pCantidad')"/>
+                            <arg evaluator="xml" expression="get-property('pCantidad')"/>
+                            <arg evaluator="xml" expression="get-property('pCodArticulo')"/>
+                            <arg evaluator="xml" expression="get-property('pDeposito')"/>
+                            <arg evaluator="xml" expression="get-property('pDeposito')"/>
+                            <arg evaluator="xml" expression="get-property('pNumeroComprobante')"/>
+                            <arg evaluator="xml" expression="get-property('pTipoMovAbreviado')"/>
+                            <arg evaluator="xml" expression="get-property('pNumeroTalonario')"/>
+                            <arg evaluator="xml" expression="get-property('pTalonario')"/>
+                            <arg evaluator="xml" expression="get-property('pCantidad')"/>
+                            <arg evaluator="xml" expression="get-property('pCodArticulo')"/>
+                            <arg evaluator="xml" expression="get-property('pDeposito')"/>
+                        </args>
+                    </payloadFactory>
+                    <property name="FORCE_ERROR_ON_SOAP_FAULT" scope="default" type="STRING" value="true"/>
+                    <header name="Action" scope="default" value="urn:request_box"/>
+                    <log description="Mensaje final upd" level="full"/>
+                    <send description="">
+                        <endpoint key="TangoDSS"/>
+                    </send>
                 </default>
             </switch>
-            <transaction action="commit" description="Commit"/>
+        </inSequence>
+        <outSequence>
+            <log description="Respuesta" level="full"/>
             <payloadFactory description="" media-type="json">
-                <format>{&#xd;
-   "response" : {&#xd;
-        "numeroComprobante" : "$1" &#xd;
-                       }&#xd;
-}</format>
+                <format>{&#xd;   "response" : {&#xd;        "numeroComprobante" : "$1" &#xd;                       }&#xd;}</format>
                 <args>
                     <arg evaluator="xml" expression="get-property('pNumeroComprobante')"/>
                 </args>
             </payloadFactory>
-            <respond/>
-        </inSequence>
-        <outSequence/>
+            <send/>
+        </outSequence>
         <faultSequence>
             <log description="Informe de error" level="custom">
-                <property name="text" value="Error Inesperado"/>
-                <property expression="get-property('ERROR_MESSAGE')" name="message"/>
-                <property expression="get-property('ERROR_CODE')" name="code"/>
-                <property expression="get-property('ERROR_DETAIL')" name="detail"/>
-                <property expression="get-property('ERROR_EXCEPTION')" name="exception"/>
+                <property name="text" value="************Error Inesperado******************"/>
+                <property name="code" value="1000"/>
+                <property expression="//detail" name="message"/>
             </log>
-            <transaction action="rollback" description="Rollback"/>
             <payloadFactory description="Mensaje error" media-type="json">
-                <format>{&#xd;
-   "response" : {&#xd;
-        "errorMessage" : "$1" &#xd;
-        "errorCode" : "$2" &#xd;
-
-                       }&#xd;
-}</format>
+                <format>{"response" : {&#xd;                       "errorCode" : "1000", &#xd;                       "errorMessage" : "$1"&#xd;                       }&#xd;}</format>
                 <args>
-                    <arg evaluator="xml" expression="get-property('ERROR_MESSAGE')"/>
-                    <arg evaluator="xml" expression="get-property('ERROR_CODE')"/>
+                    <arg evaluator="xml" expression="//detail"/>
                 </args>
             </payloadFactory>
+            <property name="messageType" scope="axis2" type="STRING" value="application/json"/>
             <property description="Respuesta 404" name="HTTP_SC" scope="axis2" type="STRING" value="404"/>
-            <respond description="Respuesta error"/>
+            <send/>
         </faultSequence>
     </resource>
 </api>
