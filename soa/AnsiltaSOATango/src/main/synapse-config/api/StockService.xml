@@ -3,8 +3,8 @@
     <resource methods="POST">
         <inSequence>
             <log description="all" level="full"/>
-            <property description="Deposito" name="pDeposito" scope="default" type="STRING" value="2"/>
-            <property description="Talonario" name="pTalonario" scope="default" type="STRING" value="2"/>
+            <property description="Deposito" name="pDeposito" scope="default" type="STRING" value="07"/>
+            <property description="Talonario" name="pTalonario" scope="default" type="STRING" value="56"/>
             <property description="Tipo Movimiento" expression="json-eval($.tipoMovimiento)" name="pTipoMovimiento" scope="default" type="STRING"/>
             <property description="Cantidad" expression="json-eval($.cantidad)" name="pCantidad" scope="default" type="STRING"/>
             <property description="Codigo Barra" expression="json-eval($.codBarra)" name="pCodBarra" scope="default" type="STRING"/>
@@ -22,7 +22,7 @@
                 <property expression="get-property('pCodBarra')" name="codbarra"/>
             </log>
             <switch source="get-property('pTipoMovimiento')">
-                <case regex="I">
+                <case regex="LEE">
                     <property description="tipo mov E" name="pTipoMovAbreviado" scope="default" type="STRING" value="E"/>
                 </case>
                 <default>
@@ -34,8 +34,8 @@
                 <connection>
                     <pool>
                         <driver>com.microsoft.sqlserver.jdbc.SQLServerDriver</driver>
-                        <url>jdbc:sqlserver://pc-pc\SQLEXPRESS:1433;databaseName=EJEMPLO</url>
-                        <user>sa</user>
+                        <url>jdbc:sqlserver://192.168.1.21\SQLEXPRESS:1433;databaseName=EjemploAnsilta</url>
+                        <user>Axoft</user>
                         <password>Axoft</password>
                     </pool>
                 </connection>
