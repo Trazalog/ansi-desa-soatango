@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <endpoint name="TangoDSS" xmlns="http://ws.apache.org/ns/synapse">
-    <wsdl port="SOAP11Endpoint" service="StockDSS" statistics="enable" trace="enable" uri="http://localhost:8280/services/StockDSS.SOAP12Endpoint?wsdl"/>
+    <wsdl port="SOAP11Endpoint" service="StockDSS" statistics="enable" trace="enable" uri="http://192.168.1.110:8280/services/StockDSS.SOAP12Endpoint?wsdl"/>
 </endpoint>

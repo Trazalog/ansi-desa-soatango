@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<endpoint name="TangoStockService" xmlns="http://ws.apache.org/ns/synapse">
-    <http method="post" uri-template="http://PC-PC:8280/services/StockDSS.HTTPEndpoint"/>
-</endpoint>
