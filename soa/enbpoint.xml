@@ -1,0 +1,11 @@
+<endpoint xmlns="http://ws.apache.org/ns/synapse" name="TangoDSS">
+   <wsdl uri="file:///usr/wsdl/StockDSS.wsdl" service="StockDSS" port="SOAP12Endpoint">
+      <suspendOnFailure>
+         <progressionFactor>1.0</progressionFactor>
+      </suspendOnFailure>
+      <markForSuspension>
+         <retriesBeforeSuspension>0</retriesBeforeSuspension>
+         <retryDelay>0</retryDelay>
+      </markForSuspension>
+   </wsdl>
+</endpoint>

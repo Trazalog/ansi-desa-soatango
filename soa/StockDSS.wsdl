@@ -1,0 +1,750 @@
+
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:ns0="http://ws.wso2.org/dataservice" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" targetNamespace="http://ws.wso2.org/dataservice">
+   <wsdl:documentation>Operaciones de Stock sobre Tango T19 para Ansilta                                </wsdl:documentation>
+   <wsdl:types>
+      <xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://ws.wso2.org/dataservice">
+         <xs:element name="DataServiceFault">
+            <xs:complexType>
+               <xs:sequence>
+                  <xs:element name="current_params" type="xs:string"/>
+                  <xs:element name="current_request_name" type="xs:string"/>
+                  <xs:element name="nested_exception" type="xs:string"/>
+                  <xs:element name="source_data_service">
+                     <xs:complexType>
+                        <xs:sequence>
+                           <xs:element name="location" type="xs:string"/>
+                           <xs:element name="default_namespace" type="xs:string"/>
+                           <xs:element name="description" type="xs:string"/>
+                           <xs:element name="data_service_name" type="xs:string"/>
+                        </xs:sequence>
+                     </xs:complexType>
+                  </xs:element>
+                  <xs:element name="ds_code" type="xs:string"/>
+               </xs:sequence>
+            </xs:complexType>
+         </xs:element>
+         <xs:element name="REQUEST_STATUS" type="xs:string"/>
+         <xs:element name="DATA_SERVICE_RESPONSE">
+            <xs:complexType>
+               <xs:sequence>
+                  <xs:any minOccurs="0"/>
+               </xs:sequence>
+            </xs:complexType>
+         </xs:element>
+         <xs:element name="updTalonario">
+            <xs:complexType>
+               <xs:sequence>
+                  <xs:element name="numTalonario" nillable="true" type="xs:int"/>
+                  <xs:element name="talonario" nillable="true" type="xs:string"/>
+               </xs:sequence>
+            </xs:complexType>
+         </xs:element>
+         <xs:element name="begin_boxcar">
+            <xs:complexType>
+               <xs:sequence/>
+            </xs:complexType>
+         </xs:element>
+         <xs:element name="crearMovimientoCabeceraStock">
+            <xs:complexType>
+               <xs:sequence>
+                  <xs:element name="cantidad" nillable="true" type="xs:string"/>
+                  <xs:element name="cantidadPend" nillable="true" type="xs:string"/>
+                  <xs:element name="codArticulo" nillable="true" type="xs:string"/>
+                  <xs:element name="deposito" nillable="true" type="xs:string"/>
+                  <xs:element name="depositoDDE" nillable="true" type="xs:string"/>
+                  <xs:element name="numComprobante" nillable="true" type="xs:int"/>
+                  <xs:element name="tipoMovimientoAbreviado" nillable="true" type="xs:string"/>
+               </xs:sequence>
+            </xs:complexType>
+         </xs:element>
+         <xs:element name="updArticuloDeposito">
+            <xs:complexType>
+               <xs:sequence>
+                  <xs:element name="cantidad" nillable="true" type="xs:string"/>
+                  <xs:element name="codArticulo" nillable="true" type="xs:string"/>
+                  <xs:element name="deposito" nillable="true" type="xs:string"/>
+               </xs:sequence>
+            </xs:complexType>
+         </xs:element>
+         <xs:element name="end_boxcar">
+            <xs:complexType>
+               <xs:sequence/>
+            </xs:complexType>
+         </xs:element>
+         <xs:element name="crearMovimientoStock">
+            <xs:complexType>
+               <xs:sequence>
+                  <xs:element name="numComprobante" nillable="true" type="xs:int"/>
+                  <xs:element name="numComprobante2" nillable="true" type="xs:int"/>
+                  <xs:element name="nroTalonario" nillable="true" type="xs:int"/>
+                  <xs:element name="tipoMov" nillable="true" type="xs:string"/>
+                  <xs:element name="ordenCorte" nillable="true" type="xs:string"/>
+                  <xs:element name="talonario" nillable="true" type="xs:int"/>
+               </xs:sequence>
+            </xs:complexType>
+         </xs:element>
+         <xs:element name="crearArticuloDeposito">
+            <xs:complexType>
+               <xs:sequence>
+                  <xs:element name="cantidad" nillable="true" type="xs:string"/>
+                  <xs:element name="codArticulo" nillable="true" type="xs:string"/>
+                  <xs:element name="deposito" nillable="true" type="xs:string"/>
+               </xs:sequence>
+            </xs:complexType>
+         </xs:element>
+         <xs:element name="abort_boxcar">
+            <xs:complexType>
+               <xs:sequence/>
+            </xs:complexType>
+         </xs:element>
+         <xs:element name="_get_numerocomprobante_tipocomprobante">
+            <xs:complexType>
+               <xs:sequence>
+                  <xs:element name="tipoComprobante" nillable="true" type="xs:string"/>
+               </xs:sequence>
+            </xs:complexType>
+         </xs:element>
+         <xs:element name="_get_existe_">
+            <xs:complexType>
+               <xs:sequence>
+                  <xs:element name="codArticulo" nillable="true" type="xs:string"/>
+                  <xs:element name="codDeposito" nillable="true" type="xs:string"/>
+               </xs:sequence>
+            </xs:complexType>
+         </xs:element>
+         <xs:element name="_get_articulo_porcodbarra_codbarra">
+            <xs:complexType>
+               <xs:sequence>
+                  <xs:element name="codBarra" nillable="true" type="xs:string"/>
+               </xs:sequence>
+            </xs:complexType>
+         </xs:element>
+         <xs:element name="_get_comprobante_proximo_">
+            <xs:complexType>
+               <xs:sequence>
+                  <xs:element name="talonario" nillable="true" type="xs:int"/>
+               </xs:sequence>
+            </xs:complexType>
+         </xs:element>
+         <xs:element name="_post_stock_movimiento_">
+            <xs:complexType>
+               <xs:sequence>
+                  <xs:element name="numComprobante" nillable="true" type="xs:int"/>
+                  <xs:element name="numComprobante2" nillable="true" type="xs:int"/>
+                  <xs:element name="nroTalonario" nillable="true" type="xs:int"/>
+                  <xs:element name="tipoMov" nillable="true" type="xs:string"/>
+                  <xs:element name="ordenCorte" nillable="true" type="xs:string"/>
+                  <xs:element name="talonario" nillable="true" type="xs:int"/>
+               </xs:sequence>
+            </xs:complexType>
+         </xs:element>
+         <xs:element name="_post_stock_movimiento_cabecera_">
+            <xs:complexType>
+               <xs:sequence>
+                  <xs:element name="cantidad" nillable="true" type="xs:string"/>
+                  <xs:element name="cantidadPend" nillable="true" type="xs:string"/>
+                  <xs:element name="codArticulo" nillable="true" type="xs:string"/>
+                  <xs:element name="deposito" nillable="true" type="xs:string"/>
+                  <xs:element name="depositoDDE" nillable="true" type="xs:string"/>
+                  <xs:element name="numComprobante" nillable="true" type="xs:int"/>
+                  <xs:element name="tipoMovimientoAbreviado" nillable="true" type="xs:string"/>
+               </xs:sequence>
+            </xs:complexType>
+         </xs:element>
+         <xs:element name="_put_talonario_">
+            <xs:complexType>
+               <xs:sequence>
+                  <xs:element name="numTalonario" nillable="true" type="xs:int"/>
+                  <xs:element name="talonario" nillable="true" type="xs:string"/>
+               </xs:sequence>
+            </xs:complexType>
+         </xs:element>
+         <xs:element name="_post_articulo_deposito_">
+            <xs:complexType>
+               <xs:sequence>
+                  <xs:element name="cantidad" nillable="true" type="xs:string"/>
+                  <xs:element name="codArticulo" nillable="true" type="xs:string"/>
+                  <xs:element name="deposito" nillable="true" type="xs:string"/>
+               </xs:sequence>
+            </xs:complexType>
+         </xs:element>
+         <xs:element name="_put_articulo_deposito_">
+            <xs:complexType>
+               <xs:sequence>
+                  <xs:element name="cantidad" nillable="true" type="xs:string"/>
+                  <xs:element name="codArticulo" nillable="true" type="xs:string"/>
+                  <xs:element name="deposito" nillable="true" type="xs:string"/>
+               </xs:sequence>
+            </xs:complexType>
+         </xs:element>
+         <xs:element name="request_box">
+            <xs:complexType>
+               <xs:all minOccurs="0">
+                  <xs:element ref="ns0:updTalonario"/>
+                  <xs:element ref="ns0:crearMovimientoCabeceraStock"/>
+                  <xs:element ref="ns0:updArticuloDeposito"/>
+                  <xs:element ref="ns0:crearMovimientoStock"/>
+                  <xs:element ref="ns0:crearArticuloDeposito"/>
+                  <xs:element ref="ns0:_get_numerocomprobante_tipocomprobante"/>
+                  <xs:element ref="ns0:_get_existe_"/>
+                  <xs:element ref="ns0:_get_articulo_porcodbarra_codbarra"/>
+                  <xs:element ref="ns0:_get_comprobante_proximo_"/>
+                  <xs:element ref="ns0:_post_stock_movimiento_"/>
+                  <xs:element ref="ns0:_post_stock_movimiento_cabecera_"/>
+                  <xs:element ref="ns0:_put_talonario_"/>
+                  <xs:element ref="ns0:_post_articulo_deposito_"/>
+                  <xs:element ref="ns0:_put_articulo_deposito_"/>
+               </xs:all>
+            </xs:complexType>
+         </xs:element>
+         <xs:element name="DATA_SERVICE_REQUEST_BOX_RESPONSE">
+            <xs:complexType/>
+         </xs:element>
+      </xs:schema>
+   </wsdl:types>
+   <wsdl:message name="_post_articulo_deposito_Request">
+      <wsdl:part name="parameters" element="ns0:_post_articulo_deposito_"/>
+   </wsdl:message>
+   <wsdl:message name="_put_talonario_Request">
+      <wsdl:part name="parameters" element="ns0:_put_talonario_"/>
+   </wsdl:message>
+   <wsdl:message name="begin_boxcarRequest">
+      <wsdl:part name="parameters" element="ns0:begin_boxcar"/>
+   </wsdl:message>
+   <wsdl:message name="begin_boxcarResponse">
+      <wsdl:part name="parameters" element="ns0:DATA_SERVICE_RESPONSE"/>
+   </wsdl:message>
+   <wsdl:message name="DataServiceFault">
+      <wsdl:part name="parameters" element="ns0:DataServiceFault"/>
+   </wsdl:message>
+   <wsdl:message name="crearMovimientoCabeceraStockRequest">
+      <wsdl:part name="parameters" element="ns0:crearMovimientoCabeceraStock"/>
+   </wsdl:message>
+   <wsdl:message name="_get_comprobante_proximo_Request">
+      <wsdl:part name="parameters" element="ns0:_get_comprobante_proximo_"/>
+   </wsdl:message>
+   <wsdl:message name="request_boxRequest">
+      <wsdl:part name="parameters" element="ns0:request_box"/>
+   </wsdl:message>
+   <wsdl:message name="request_boxResponse">
+      <wsdl:part name="parameters" element="ns0:DATA_SERVICE_REQUEST_BOX_RESPONSE"/>
+   </wsdl:message>
+   <wsdl:message name="updArticuloDepositoRequest">
+      <wsdl:part name="parameters" element="ns0:updArticuloDeposito"/>
+   </wsdl:message>
+   <wsdl:message name="_post_stock_movimiento_cabecera_Request">
+      <wsdl:part name="parameters" element="ns0:_post_stock_movimiento_cabecera_"/>
+   </wsdl:message>
+   <wsdl:message name="abort_boxcarRequest">
+      <wsdl:part name="parameters" element="ns0:abort_boxcar"/>
+   </wsdl:message>
+   <wsdl:message name="updTalonarioRequest">
+      <wsdl:part name="parameters" element="ns0:updTalonario"/>
+   </wsdl:message>
+   <wsdl:message name="_get_numerocomprobante_tipocomprobanteRequest">
+      <wsdl:part name="parameters" element="ns0:_get_numerocomprobante_tipocomprobante"/>
+   </wsdl:message>
+   <wsdl:message name="_get_articulo_porcodbarra_codbarraRequest">
+      <wsdl:part name="parameters" element="ns0:_get_articulo_porcodbarra_codbarra"/>
+   </wsdl:message>
+   <wsdl:message name="_post_stock_movimiento_Request">
+      <wsdl:part name="parameters" element="ns0:_post_stock_movimiento_"/>
+   </wsdl:message>
+   <wsdl:message name="_put_articulo_deposito_Request">
+      <wsdl:part name="parameters" element="ns0:_put_articulo_deposito_"/>
+   </wsdl:message>
+   <wsdl:message name="end_boxcarRequest">
+      <wsdl:part name="parameters" element="ns0:end_boxcar"/>
+   </wsdl:message>
+   <wsdl:message name="end_boxcarResponse">
+      <wsdl:part name="parameters" element="ns0:DATA_SERVICE_RESPONSE"/>
+   </wsdl:message>
+   <wsdl:message name="crearMovimientoStockRequest">
+      <wsdl:part name="parameters" element="ns0:crearMovimientoStock"/>
+   </wsdl:message>
+   <wsdl:message name="_get_existe_Request">
+      <wsdl:part name="parameters" element="ns0:_get_existe_"/>
+   </wsdl:message>
+   <wsdl:message name="crearArticuloDepositoRequest">
+      <wsdl:part name="parameters" element="ns0:crearArticuloDeposito"/>
+   </wsdl:message>
+   <wsdl:portType name="StockDSSPortType">
+      <wsdl:operation name="_post_articulo_deposito_">
+         <wsdl:documentation/>
+         <wsdl:input message="ns0:_post_articulo_deposito_Request" wsaw:Action="urn:_post_articulo_deposito_"/>
+      </wsdl:operation>
+      <wsdl:operation name="_put_talonario_">
+         <wsdl:documentation/>
+         <wsdl:input message="ns0:_put_talonario_Request" wsaw:Action="urn:_put_talonario_"/>
+      </wsdl:operation>
+      <wsdl:operation name="begin_boxcar">
+         <wsdl:documentation>Control operation for beginning a boxcarring session</wsdl:documentation>
+         <wsdl:input message="ns0:begin_boxcarRequest" wsaw:Action="urn:begin_boxcar"/>
+         <wsdl:output message="ns0:begin_boxcarResponse" wsaw:Action="urn:begin_boxcarResponse"/>
+         <wsdl:fault message="ns0:DataServiceFault" name="DataServiceFault" wsaw:Action="urn:begin_boxcarDataServiceFault"/>
+      </wsdl:operation>
+      <wsdl:operation name="crearMovimientoCabeceraStock">
+         <wsdl:documentation/>
+         <wsdl:input message="ns0:crearMovimientoCabeceraStockRequest" wsaw:Action="urn:crearMovimientoCabeceraStock"/>
+      </wsdl:operation>
+      <wsdl:operation name="_get_comprobante_proximo_">
+         <wsdl:documentation/>
+         <wsdl:input message="ns0:_get_comprobante_proximo_Request" wsaw:Action="urn:_get_comprobante_proximo_"/>
+      </wsdl:operation>
+      <wsdl:operation name="request_box">
+         <wsdl:documentation>Control operation for sending multiple requests at once</wsdl:documentation>
+         <wsdl:input message="ns0:request_boxRequest" wsaw:Action="urn:request_box"/>
+         <wsdl:output message="ns0:request_boxResponse" wsaw:Action="urn:request_boxResponse"/>
+         <wsdl:fault message="ns0:DataServiceFault" name="DataServiceFault" wsaw:Action="urn:request_boxDataServiceFault"/>
+      </wsdl:operation>
+      <wsdl:operation name="updArticuloDeposito">
+         <wsdl:documentation/>
+         <wsdl:input message="ns0:updArticuloDepositoRequest" wsaw:Action="urn:updArticuloDeposito"/>
+      </wsdl:operation>
+      <wsdl:operation name="_post_stock_movimiento_cabecera_">
+         <wsdl:documentation/>
+         <wsdl:input message="ns0:_post_stock_movimiento_cabecera_Request" wsaw:Action="urn:_post_stock_movimiento_cabecera_"/>
+      </wsdl:operation>
+      <wsdl:operation name="abort_boxcar">
+         <wsdl:documentation>Control operation for aborting a boxcarring session</wsdl:documentation>
+         <wsdl:input message="ns0:abort_boxcarRequest" wsaw:Action="urn:abort_boxcar"/>
+      </wsdl:operation>
+      <wsdl:operation name="updTalonario">
+         <wsdl:documentation/>
+         <wsdl:input message="ns0:updTalonarioRequest" wsaw:Action="urn:updTalonario"/>
+      </wsdl:operation>
+      <wsdl:operation name="_get_numerocomprobante_tipocomprobante">
+         <wsdl:documentation/>
+         <wsdl:input message="ns0:_get_numerocomprobante_tipocomprobanteRequest" wsaw:Action="urn:_get_numerocomprobante_tipocomprobante"/>
+      </wsdl:operation>
+      <wsdl:operation name="_get_articulo_porcodbarra_codbarra">
+         <wsdl:documentation/>
+         <wsdl:input message="ns0:_get_articulo_porcodbarra_codbarraRequest" wsaw:Action="urn:_get_articulo_porcodbarra_codbarra"/>
+      </wsdl:operation>
+      <wsdl:operation name="_post_stock_movimiento_">
+         <wsdl:documentation/>
+         <wsdl:input message="ns0:_post_stock_movimiento_Request" wsaw:Action="urn:_post_stock_movimiento_"/>
+      </wsdl:operation>
+      <wsdl:operation name="_put_articulo_deposito_">
+         <wsdl:documentation/>
+         <wsdl:input message="ns0:_put_articulo_deposito_Request" wsaw:Action="urn:_put_articulo_deposito_"/>
+      </wsdl:operation>
+      <wsdl:operation name="end_boxcar">
+         <wsdl:documentation>Control operation for ending a boxcarring session</wsdl:documentation>
+         <wsdl:input message="ns0:end_boxcarRequest" wsaw:Action="urn:end_boxcar"/>
+         <wsdl:output message="ns0:end_boxcarResponse" wsaw:Action="urn:end_boxcarResponse"/>
+         <wsdl:fault message="ns0:DataServiceFault" name="DataServiceFault" wsaw:Action="urn:end_boxcarDataServiceFault"/>
+      </wsdl:operation>
+      <wsdl:operation name="crearMovimientoStock">
+         <wsdl:documentation/>
+         <wsdl:input message="ns0:crearMovimientoStockRequest" wsaw:Action="urn:crearMovimientoStock"/>
+      </wsdl:operation>
+      <wsdl:operation name="_get_existe_">
+         <wsdl:documentation/>
+         <wsdl:input message="ns0:_get_existe_Request" wsaw:Action="urn:_get_existe_"/>
+      </wsdl:operation>
+      <wsdl:operation name="crearArticuloDeposito">
+         <wsdl:documentation/>
+         <wsdl:input message="ns0:crearArticuloDepositoRequest" wsaw:Action="urn:crearArticuloDeposito"/>
+      </wsdl:operation>
+   </wsdl:portType>
+   <wsdl:binding name="StockDSSSOAP11Binding" type="ns0:StockDSSPortType">
+      <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+      <wsdl:operation name="_post_articulo_deposito_">
+         <soap:operation soapAction="urn:_post_articulo_deposito_" style="document"/>
+         <wsdl:input>
+            <soap:body use="literal"/>
+         </wsdl:input>
+      </wsdl:operation>
+      <wsdl:operation name="_put_talonario_">
+         <soap:operation soapAction="urn:_put_talonario_" style="document"/>
+         <wsdl:input>
+            <soap:body use="literal"/>
+         </wsdl:input>
+      </wsdl:operation>
+      <wsdl:operation name="begin_boxcar">
+         <soap:operation soapAction="urn:begin_boxcar" style="document"/>
+         <wsdl:input>
+            <soap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <soap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="DataServiceFault">
+            <soap:fault use="literal" name="DataServiceFault"/>
+         </wsdl:fault>
+      </wsdl:operation>
+      <wsdl:operation name="crearMovimientoCabeceraStock">
+         <soap:operation soapAction="urn:crearMovimientoCabeceraStock" style="document"/>
+         <wsdl:input>
+            <soap:body use="literal"/>
+         </wsdl:input>
+      </wsdl:operation>
+      <wsdl:operation name="_get_comprobante_proximo_">
+         <soap:operation soapAction="urn:_get_comprobante_proximo_" style="document"/>
+         <wsdl:input>
+            <soap:body use="literal"/>
+         </wsdl:input>
+      </wsdl:operation>
+      <wsdl:operation name="request_box">
+         <soap:operation soapAction="urn:request_box" style="document"/>
+         <wsdl:input>
+            <soap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <soap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="DataServiceFault">
+            <soap:fault use="literal" name="DataServiceFault"/>
+         </wsdl:fault>
+      </wsdl:operation>
+      <wsdl:operation name="updArticuloDeposito">
+         <soap:operation soapAction="urn:updArticuloDeposito" style="document"/>
+         <wsdl:input>
+            <soap:body use="literal"/>
+         </wsdl:input>
+      </wsdl:operation>
+      <wsdl:operation name="_post_stock_movimiento_cabecera_">
+         <soap:operation soapAction="urn:_post_stock_movimiento_cabecera_" style="document"/>
+         <wsdl:input>
+            <soap:body use="literal"/>
+         </wsdl:input>
+      </wsdl:operation>
+      <wsdl:operation name="abort_boxcar">
+         <soap:operation soapAction="urn:abort_boxcar" style="document"/>
+         <wsdl:input>
+            <soap:body use="literal"/>
+         </wsdl:input>
+      </wsdl:operation>
+      <wsdl:operation name="updTalonario">
+         <soap:operation soapAction="urn:updTalonario" style="document"/>
+         <wsdl:input>
+            <soap:body use="literal"/>
+         </wsdl:input>
+      </wsdl:operation>
+      <wsdl:operation name="_get_numerocomprobante_tipocomprobante">
+         <soap:operation soapAction="urn:_get_numerocomprobante_tipocomprobante" style="document"/>
+         <wsdl:input>
+            <soap:body use="literal"/>
+         </wsdl:input>
+      </wsdl:operation>
+      <wsdl:operation name="_get_articulo_porcodbarra_codbarra">
+         <soap:operation soapAction="urn:_get_articulo_porcodbarra_codbarra" style="document"/>
+         <wsdl:input>
+            <soap:body use="literal"/>
+         </wsdl:input>
+      </wsdl:operation>
+      <wsdl:operation name="_post_stock_movimiento_">
+         <soap:operation soapAction="urn:_post_stock_movimiento_" style="document"/>
+         <wsdl:input>
+            <soap:body use="literal"/>
+         </wsdl:input>
+      </wsdl:operation>
+      <wsdl:operation name="_put_articulo_deposito_">
+         <soap:operation soapAction="urn:_put_articulo_deposito_" style="document"/>
+         <wsdl:input>
+            <soap:body use="literal"/>
+         </wsdl:input>
+      </wsdl:operation>
+      <wsdl:operation name="end_boxcar">
+         <soap:operation soapAction="urn:end_boxcar" style="document"/>
+         <wsdl:input>
+            <soap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <soap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="DataServiceFault">
+            <soap:fault use="literal" name="DataServiceFault"/>
+         </wsdl:fault>
+      </wsdl:operation>
+      <wsdl:operation name="crearMovimientoStock">
+         <soap:operation soapAction="urn:crearMovimientoStock" style="document"/>
+         <wsdl:input>
+            <soap:body use="literal"/>
+         </wsdl:input>
+      </wsdl:operation>
+      <wsdl:operation name="_get_existe_">
+         <soap:operation soapAction="urn:_get_existe_" style="document"/>
+         <wsdl:input>
+            <soap:body use="literal"/>
+         </wsdl:input>
+      </wsdl:operation>
+      <wsdl:operation name="crearArticuloDeposito">
+         <soap:operation soapAction="urn:crearArticuloDeposito" style="document"/>
+         <wsdl:input>
+            <soap:body use="literal"/>
+         </wsdl:input>
+      </wsdl:operation>
+   </wsdl:binding>
+   <wsdl:binding name="StockDSSSOAP12Binding" type="ns0:StockDSSPortType">
+      <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+      <wsdl:operation name="_post_articulo_deposito_">
+         <soap12:operation soapAction="urn:_post_articulo_deposito_" style="document"/>
+         <wsdl:input>
+            <soap12:body use="literal"/>
+         </wsdl:input>
+      </wsdl:operation>
+      <wsdl:operation name="_put_talonario_">
+         <soap12:operation soapAction="urn:_put_talonario_" style="document"/>
+         <wsdl:input>
+            <soap12:body use="literal"/>
+         </wsdl:input>
+      </wsdl:operation>
+      <wsdl:operation name="begin_boxcar">
+         <soap12:operation soapAction="urn:begin_boxcar" style="document"/>
+         <wsdl:input>
+            <soap12:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <soap12:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="DataServiceFault">
+            <soap12:fault use="literal" name="DataServiceFault"/>
+         </wsdl:fault>
+      </wsdl:operation>
+      <wsdl:operation name="crearMovimientoCabeceraStock">
+         <soap12:operation soapAction="urn:crearMovimientoCabeceraStock" style="document"/>
+         <wsdl:input>
+            <soap12:body use="literal"/>
+         </wsdl:input>
+      </wsdl:operation>
+      <wsdl:operation name="_get_comprobante_proximo_">
+         <soap12:operation soapAction="urn:_get_comprobante_proximo_" style="document"/>
+         <wsdl:input>
+            <soap12:body use="literal"/>
+         </wsdl:input>
+      </wsdl:operation>
+      <wsdl:operation name="request_box">
+         <soap12:operation soapAction="urn:request_box" style="document"/>
+         <wsdl:input>
+            <soap12:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <soap12:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="DataServiceFault">
+            <soap12:fault use="literal" name="DataServiceFault"/>
+         </wsdl:fault>
+      </wsdl:operation>
+      <wsdl:operation name="updArticuloDeposito">
+         <soap12:operation soapAction="urn:updArticuloDeposito" style="document"/>
+         <wsdl:input>
+            <soap12:body use="literal"/>
+         </wsdl:input>
+      </wsdl:operation>
+      <wsdl:operation name="_post_stock_movimiento_cabecera_">
+         <soap12:operation soapAction="urn:_post_stock_movimiento_cabecera_" style="document"/>
+         <wsdl:input>
+            <soap12:body use="literal"/>
+         </wsdl:input>
+      </wsdl:operation>
+      <wsdl:operation name="abort_boxcar">
+         <soap12:operation soapAction="urn:abort_boxcar" style="document"/>
+         <wsdl:input>
+            <soap12:body use="literal"/>
+         </wsdl:input>
+      </wsdl:operation>
+      <wsdl:operation name="updTalonario">
+         <soap12:operation soapAction="urn:updTalonario" style="document"/>
+         <wsdl:input>
+            <soap12:body use="literal"/>
+         </wsdl:input>
+      </wsdl:operation>
+      <wsdl:operation name="_get_numerocomprobante_tipocomprobante">
+         <soap12:operation soapAction="urn:_get_numerocomprobante_tipocomprobante" style="document"/>
+         <wsdl:input>
+            <soap12:body use="literal"/>
+         </wsdl:input>
+      </wsdl:operation>
+      <wsdl:operation name="_get_articulo_porcodbarra_codbarra">
+         <soap12:operation soapAction="urn:_get_articulo_porcodbarra_codbarra" style="document"/>
+         <wsdl:input>
+            <soap12:body use="literal"/>
+         </wsdl:input>
+      </wsdl:operation>
+      <wsdl:operation name="_post_stock_movimiento_">
+         <soap12:operation soapAction="urn:_post_stock_movimiento_" style="document"/>
+         <wsdl:input>
+            <soap12:body use="literal"/>
+         </wsdl:input>
+      </wsdl:operation>
+      <wsdl:operation name="_put_articulo_deposito_">
+         <soap12:operation soapAction="urn:_put_articulo_deposito_" style="document"/>
+         <wsdl:input>
+            <soap12:body use="literal"/>
+         </wsdl:input>
+      </wsdl:operation>
+      <wsdl:operation name="end_boxcar">
+         <soap12:operation soapAction="urn:end_boxcar" style="document"/>
+         <wsdl:input>
+            <soap12:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <soap12:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="DataServiceFault">
+            <soap12:fault use="literal" name="DataServiceFault"/>
+         </wsdl:fault>
+      </wsdl:operation>
+      <wsdl:operation name="crearMovimientoStock">
+         <soap12:operation soapAction="urn:crearMovimientoStock" style="document"/>
+         <wsdl:input>
+            <soap12:body use="literal"/>
+         </wsdl:input>
+      </wsdl:operation>
+      <wsdl:operation name="_get_existe_">
+         <soap12:operation soapAction="urn:_get_existe_" style="document"/>
+         <wsdl:input>
+            <soap12:body use="literal"/>
+         </wsdl:input>
+      </wsdl:operation>
+      <wsdl:operation name="crearArticuloDeposito">
+         <soap12:operation soapAction="urn:crearArticuloDeposito" style="document"/>
+         <wsdl:input>
+            <soap12:body use="literal"/>
+         </wsdl:input>
+      </wsdl:operation>
+   </wsdl:binding>
+   <wsdl:binding name="StockDSSHttpBinding" type="ns0:StockDSSPortType">
+      <http:binding verb="POST"/>
+      <wsdl:operation name="_post_articulo_deposito_">
+         <http:operation location="/articulo/deposito/"/>
+         <wsdl:input>
+            <mime:content type="text/xml" part="parameters"/>
+         </wsdl:input>
+      </wsdl:operation>
+      <wsdl:operation name="_put_talonario_">
+         <http:operation location="/talonario/"/>
+         <wsdl:input>
+            <mime:content type="text/xml" part="parameters"/>
+         </wsdl:input>
+      </wsdl:operation>
+      <wsdl:operation name="begin_boxcar">
+         <http:operation location="begin_boxcar"/>
+         <wsdl:input>
+            <mime:content type="text/xml" part="parameters"/>
+         </wsdl:input>
+         <wsdl:output>
+            <mime:content type="text/xml" part="parameters"/>
+         </wsdl:output>
+      </wsdl:operation>
+      <wsdl:operation name="crearMovimientoCabeceraStock">
+         <http:operation location="crearMovimientoCabeceraStock"/>
+         <wsdl:input>
+            <mime:content type="text/xml" part="parameters"/>
+         </wsdl:input>
+      </wsdl:operation>
+      <wsdl:operation name="_get_comprobante_proximo_">
+         <http:operation location="/comprobante/proximo/"/>
+         <wsdl:input>
+            <mime:content type="text/xml" part="parameters"/>
+         </wsdl:input>
+      </wsdl:operation>
+      <wsdl:operation name="request_box">
+         <http:operation location="request_box"/>
+         <wsdl:input>
+            <mime:content type="text/xml" part="parameters"/>
+         </wsdl:input>
+         <wsdl:output>
+            <mime:content type="text/xml" part="parameters"/>
+         </wsdl:output>
+      </wsdl:operation>
+      <wsdl:operation name="updArticuloDeposito">
+         <http:operation location="updArticuloDeposito"/>
+         <wsdl:input>
+            <mime:content type="text/xml" part="parameters"/>
+         </wsdl:input>
+      </wsdl:operation>
+      <wsdl:operation name="_post_stock_movimiento_cabecera_">
+         <http:operation location="/stock/movimiento/cabecera/"/>
+         <wsdl:input>
+            <mime:content type="text/xml" part="parameters"/>
+         </wsdl:input>
+      </wsdl:operation>
+      <wsdl:operation name="abort_boxcar">
+         <http:operation location="abort_boxcar"/>
+         <wsdl:input>
+            <mime:content type="text/xml" part="parameters"/>
+         </wsdl:input>
+      </wsdl:operation>
+      <wsdl:operation name="updTalonario">
+         <http:operation location="updTalonario"/>
+         <wsdl:input>
+            <mime:content type="text/xml" part="parameters"/>
+         </wsdl:input>
+      </wsdl:operation>
+      <wsdl:operation name="_get_numerocomprobante_tipocomprobante">
+         <http:operation location="/numeroComprobante/(tipoComprobante)"/>
+         <wsdl:input>
+            <mime:content type="text/xml" part="parameters"/>
+         </wsdl:input>
+      </wsdl:operation>
+      <wsdl:operation name="_get_articulo_porcodbarra_codbarra">
+         <http:operation location="/articulo/porcodbarra/(codBarra)"/>
+         <wsdl:input>
+            <mime:content type="text/xml" part="parameters"/>
+         </wsdl:input>
+      </wsdl:operation>
+      <wsdl:operation name="_post_stock_movimiento_">
+         <http:operation location="/stock/movimiento/"/>
+         <wsdl:input>
+            <mime:content type="text/xml" part="parameters"/>
+         </wsdl:input>
+      </wsdl:operation>
+      <wsdl:operation name="_put_articulo_deposito_">
+         <http:operation location="/articulo/deposito/"/>
+         <wsdl:input>
+            <mime:content type="text/xml" part="parameters"/>
+         </wsdl:input>
+      </wsdl:operation>
+      <wsdl:operation name="end_boxcar">
+         <http:operation location="end_boxcar"/>
+         <wsdl:input>
+            <mime:content type="text/xml" part="parameters"/>
+         </wsdl:input>
+         <wsdl:output>
+            <mime:content type="text/xml" part="parameters"/>
+         </wsdl:output>
+      </wsdl:operation>
+      <wsdl:operation name="crearMovimientoStock">
+         <http:operation location="crearMovimientoStock"/>
+         <wsdl:input>
+            <mime:content type="text/xml" part="parameters"/>
+         </wsdl:input>
+      </wsdl:operation>
+      <wsdl:operation name="_get_existe_">
+         <http:operation location="/existe/"/>
+         <wsdl:input>
+            <mime:content type="text/xml" part="parameters"/>
+         </wsdl:input>
+      </wsdl:operation>
+      <wsdl:operation name="crearArticuloDeposito">
+         <http:operation location="crearArticuloDeposito"/>
+         <wsdl:input>
+            <mime:content type="text/xml" part="parameters"/>
+         </wsdl:input>
+      </wsdl:operation>
+   </wsdl:binding>
+   <wsdl:service name="StockDSS">
+      <wsdl:port name="SecureSOAP11Endpoint" binding="ns0:StockDSSSOAP11Binding">
+         <soap:address location="https://localhost:8243/services/StockDSS.SecureSOAP11Endpoint"/>
+      </wsdl:port>
+      <wsdl:port name="SOAP11Endpoint" binding="ns0:StockDSSSOAP11Binding">
+         <soap:address location="http://localhost:8280/services/StockDSS.SOAP11Endpoint"/>
+      </wsdl:port>
+      <wsdl:port name="SecureSOAP12Endpoint" binding="ns0:StockDSSSOAP12Binding">
+         <soap12:address location="https://localhost:8243/services/StockDSS.SecureSOAP12Endpoint"/>
+      </wsdl:port>
+      <wsdl:port name="SOAP12Endpoint" binding="ns0:StockDSSSOAP12Binding">
+         <soap12:address location="http://localhost:8280/services/StockDSS.SOAP12Endpoint"/>
+      </wsdl:port>
+      <wsdl:port name="SecureHTTPEndpoint" binding="ns0:StockDSSHttpBinding">
+         <http:address location="https://localhost:8243/services/StockDSS.SecureHTTPEndpoint"/>
+      </wsdl:port>
+      <wsdl:port name="HTTPEndpoint" binding="ns0:StockDSSHttpBinding">
+         <http:address location="http://localhost:8280/services/StockDSS.HTTPEndpoint"/>
+      </wsdl:port>
+   </wsdl:service>
+</wsdl:definitions>
+

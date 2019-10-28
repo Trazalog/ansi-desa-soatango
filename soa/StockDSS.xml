@@ -1,0 +1,167 @@
+<data enableBoxcarring="true" name="StockDSS" transports="http https local">
+   <description>Operaciones de Stock sobre Tango T19 para Ansilta                                </description>
+   <config id="TangoDS">
+      <property name="driverClassName">com.microsoft.sqlserver.jdbc.SQLServerDriver</property>
+      <property name="url">jdbc:sqlserver://192.168.1.21\SQLEXPRESS:1433;databaseName=EjemploAnsilta</property>
+      <property name="username">Axoft</property>
+      <property name="password">Axoft</property>
+      <property name="dataSourceProps"/>
+   </config>
+   <query id="numeroComprobante" useConfig="TangoDS">
+      <sql>SELECT ISNULL(MAX(cast (NCOMP_IN_S as int))+1,1) AS numeroComprobante FROM STA14 WHERE T_COMP = ?</sql>
+      <param name="tipoComprobante" sqlType="STRING"/>
+   </query>
+   <query id="codArticulo" useConfig="TangoDS">
+      <sql>select cod_articu as codArticulo from sta11 where cod_articu =?</sql>
+      <param name="codBarra" sqlType="STRING"/>
+   </query>
+   <query id="existeEnDeposito" useConfig="TangoDS">
+      <sql>select count(1) existe from STA19 where COD_ARTICU = ? and COD_DEPOSI =?</sql>
+      <param name="codArticulo" sqlType="STRING"/>
+      <param name="codDeposito" sqlType="STRING"/>
+   </query>
+   <query id="nextNumComprobante" useConfig="TangoDS">
+      <sql>select cast (proximo as int) as proximo from sta17 where talonario = ?</sql>
+      <param name="talonario" sqlType="INTEGER"/>
+   </query>
+   <query id="movimientoStock" useConfig="TangoDS">
+      <sql>insert into sta14 (cod_pro_cl,cotiz,exportado,fecha_mov,lote,mon_cte,nro_sucurs, n_comp ,ncomp_in_s,n_remito,observacio,talonario ,t_comp,tcomp_in_s)VALUES ('' ,'1','0' ,GETDATE(),'0',-1,'0' ,FORMAT(:numComprobante2,' 0000000000000'),FORMAT(:numComprobante,'00000000'),FORMAT(:nroTalonario, '000000000000'),:ordenCorte,:talonario,:tipoMov,'LE')</sql>
+      <param name="numComprobante" sqlType="INTEGER"/>
+      <param name="numComprobante2" sqlType="INTEGER"/>
+      <param name="nroTalonario" sqlType="INTEGER"/>
+      <param name="tipoMov" sqlType="STRING"/>
+      <param name="ordenCorte" sqlType="STRING"/>
+      <param name="talonario" sqlType="INTEGER"/>
+   </query>
+   <query id="cabeceraMovimientoStock" useConfig="TangoDS">
+      <sql>insert into sta20 (cantidad ,cant_dev ,cant_oc ,cant_pend ,can_equi_v ,cod_articu ,cod_deposi ,deposi_dde ,equivalenc ,fecha_mov ,ncomp_in_s ,n_rengl_oc ,n_rengl_s ,precio ,tipo_mov ,tcomp_in_s) values( CAST(REPLACE(?,'.0','') AS INT)  ,'0' ,'0' ,CAST(REPLACE(?,'.0','') AS INT)  ,'1' ,?  ,?  ,?  ,'1' ,GETDATE() ,FORMAT(CAST(? AS INT),'00000000')  ,'0' ,1 ,'0' ,?,'LE')</sql>
+      <param name="cantidad" sqlType="STRING"/>
+      <param name="cantidadPend" sqlType="STRING"/>
+      <param name="codArticulo" sqlType="STRING"/>
+      <param name="deposito" sqlType="STRING"/>
+      <param name="depositoDDE" sqlType="STRING"/>
+      <param name="numComprobante" sqlType="INTEGER"/>
+      <param name="tipoMovimientoAbreviado" sqlType="STRING"/>
+   </query>
+   <query id="talonario" useConfig="TangoDS">
+      <sql>update sta17 set proximo = CAST(? AS INT) + 1 where talonario = ?</sql>
+      <param name="numTalonario" sqlType="INTEGER"/>
+      <param name="talonario" sqlType="STRING"/>
+   </query>
+   <query id="nuevoArticuloDeposito" useConfig="TangoDS">
+      <sql>insert into sta19 (cant_stock,COD_ARTICU,COD_DEPOSI) values(CAST(REPLACE(?,'.0','') AS INT),?,?)</sql>
+      <param name="cantidad" sqlType="STRING"/>
+      <param name="codArticulo" sqlType="STRING"/>
+      <param name="deposito" sqlType="STRING"/>
+   </query>
+   <query id="actualizaArticuloDeposito" useConfig="TangoDS">
+      <sql>update sta19 set cant_stock = cant_stock + CAST(REPLACE(?,'.0','') AS INT) where cod_articu = ? and cod_deposi = ?</sql>
+      <param name="cantidad" sqlType="STRING"/>
+      <param name="codArticulo" sqlType="STRING"/>
+      <param name="deposito" sqlType="STRING"/>
+   </query>
+   <operation name="crearMovimientoStock">
+      <call-query href="movimientoStock">
+         <with-param name="numComprobante" query-param="numComprobante"/>
+         <with-param name="numComprobante2" query-param="numComprobante2"/>
+         <with-param name="nroTalonario" query-param="nroTalonario"/>
+         <with-param name="tipoMov" query-param="tipoMov"/>
+         <with-param name="ordenCorte" query-param="ordenCorte"/>
+         <with-param name="talonario" query-param="talonario"/>
+      </call-query>
+   </operation>
+   <operation name="crearMovimientoCabeceraStock">
+      <call-query href="cabeceraMovimientoStock">
+         <with-param name="cantidad" query-param="cantidad"/>
+         <with-param name="cantidadPend" query-param="cantidadPend"/>
+         <with-param name="codArticulo" query-param="codArticulo"/>
+         <with-param name="deposito" query-param="deposito"/>
+         <with-param name="depositoDDE" query-param="depositoDDE"/>
+         <with-param name="numComprobante" query-param="numComprobante"/>
+         <with-param name="tipoMovimientoAbreviado" query-param="tipoMovimientoAbreviado"/>
+      </call-query>
+   </operation>
+   <operation name="updTalonario">
+      <call-query href="talonario">
+         <with-param name="numTalonario" query-param="numTalonario"/>
+         <with-param name="talonario" query-param="talonario"/>
+      </call-query>
+   </operation>
+   <operation name="crearArticuloDeposito">
+      <call-query href="nuevoArticuloDeposito">
+         <with-param name="cantidad" query-param="cantidad"/>
+         <with-param name="codArticulo" query-param="codArticulo"/>
+         <with-param name="deposito" query-param="deposito"/>
+      </call-query>
+   </operation>
+   <operation name="updArticuloDeposito">
+      <call-query href="actualizaArticuloDeposito">
+         <with-param name="cantidad" query-param="cantidad"/>
+         <with-param name="codArticulo" query-param="codArticulo"/>
+         <with-param name="deposito" query-param="deposito"/>
+      </call-query>
+   </operation>
+   <resource method="GET" path="/numeroComprobante/{tipoComprobante}">
+      <call-query href="numeroComprobante">
+         <with-param name="tipoComprobante" query-param="tipoComprobante"/>
+      </call-query>
+   </resource>
+   <resource method="GET" path="/existe/">
+      <call-query href="existeEnDeposito">
+         <with-param name="codArticulo" query-param="codArticulo"/>
+         <with-param name="codDeposito" query-param="codDeposito"/>
+      </call-query>
+   </resource>
+   <resource method="GET" path="/articulo/porcodbarra/{codBarra}">
+      <call-query href="codArticulo">
+         <with-param name="codBarra" query-param="codBarra"/>
+      </call-query>
+   </resource>
+   <resource method="GET" path="/comprobante/proximo/">
+      <call-query href="nextNumComprobante">
+         <with-param name="talonario" query-param="talonario"/>
+      </call-query>
+   </resource>
+   <resource method="POST" path="/stock/movimiento/">
+      <call-query href="movimientoStock">
+         <with-param name="nroTalonario" query-param="nroTalonario"/>
+         <with-param name="numComprobante" query-param="numComprobante"/>
+         <with-param name="numComprobante2" query-param="numComprobante2"/>
+         <with-param name="tipoMov" query-param="tipoMov"/>
+         <with-param name="ordenCorte" query-param="ordenCorte"/>
+         <with-param name="talonario" query-param="talonario"/>
+      </call-query>
+   </resource>
+   <resource method="POST" path="/stock/movimiento/cabecera/">
+      <call-query href="cabeceraMovimientoStock">
+         <with-param name="cantidad" query-param="cantidad"/>
+         <with-param name="cantidadPend" query-param="cantidadPend"/>
+         <with-param name="codArticulo" query-param="codArticulo"/>
+         <with-param name="deposito" query-param="deposito"/>
+         <with-param name="depositoDDE" query-param="depositoDDE"/>
+         <with-param name="numComprobante" query-param="numComprobante"/>
+         <with-param name="tipoMovimientoAbreviado" query-param="tipoMovimientoAbreviado"/>
+      </call-query>
+   </resource>
+   <resource method="PUT" path="/talonario/">
+      <call-query href="talonario">
+         <with-param name="numTalonario" query-param="numTalonario"/>
+         <with-param name="talonario" query-param="talonario"/>
+      </call-query>
+   </resource>
+   <resource method="POST" path="/articulo/deposito/">
+      <call-query href="nuevoArticuloDeposito">
+         <with-param name="cantidad" query-param="cantidad"/>
+         <with-param name="codArticulo" query-param="codArticulo"/>
+         <with-param name="deposito" query-param="deposito"/>
+      </call-query>
+   </resource>
+   <resource method="PUT" path="/articulo/deposito/">
+      <call-query href="actualizaArticuloDeposito">
+         <with-param name="cantidad" query-param="cantidad"/>
+         <with-param name="codArticulo" query-param="codArticulo"/>
+         <with-param name="deposito" query-param="deposito"/>
+      </call-query>
+   </resource>
+</data>
+
