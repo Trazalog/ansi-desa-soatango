@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>AnsiltaSOATango</name>
+	<comment></comment>
+	<projects>
+		<project>ANSI-desa-soatango</project>
+		<project>ANSI-desa-soatango-dss</project>
+		<project>AnsiltaRegistry</project>
+		<project>AnsiltaSOATangoCompositeApplication</project>
+		<project>AnsiltaSOATangoConnectorExporter</project>
+		<project>AnsiltaSOATangoRegistry</project>
+		<project>TangoDS</project>
+	</projects>
+	<buildSpec>
+	</buildSpec>
+	<natures>
+		<nature>org.wso2.developerstudio.eclipse.esb.project.nature</nature>
+	</natures>
+</projectDescription>

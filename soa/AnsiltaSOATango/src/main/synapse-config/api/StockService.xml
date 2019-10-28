@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<api context="/services/stock" name="StockService" xmlns="http://ws.apache.org/ns/synapse">
+    <resource methods="POST">
+        <inSequence>
+            <log description="all" level="full"/>
+            <property description="Deposito" name="pDeposito" scope="default" type="STRING" value="07"/>
+            <property description="Talonario" name="pTalonario" scope="default" type="STRING" value="56"/>
+            <property description="Tipo Movimiento" expression="json-eval($.tipoMovimiento)" name="pTipoMovimiento" scope="default" type="STRING"/>
+            <property description="Cantidad" expression="json-eval($.cantidad)" name="pCantidad" scope="default" type="STRING"/>
+            <property description="Codigo Barra" expression="json-eval($.codBarra)" name="pCodBarra" scope="default" type="STRING"/>
+            <property description="Cod Articulo" name="pCodArticulo" scope="default" type="STRING" value="N"/>
+            <log description="Previo db" level="custom">
+                <property expression="get-property('pNumeroComprobante')" name="comprobante"/>
+                <property expression="get-property('pCodArticulo')" name="articulo"/>
+                <property expression="get-property('pCantidad')" name="cantidad"/>
+                <property expression="get-property('pTipoMovAbreviado')" name="tipomovabreviado"/>
+                <property expression="get-property('pDeposito')" name="deposito"/>
+                <property expression="get-property('pTalonario')" name="talonario"/>
+                <property expression="get-property('pExisteEnDeposito')" name="existeendeposito"/>
+                <property expression="get-property('pTipoMovimiento')" name="tipomov"/>
+                <property expression="get-property('pNumeroTalonario')" name="numerotalonario"/>
+                <property expression="get-property('pCodBarra')" name="codbarra"/>
+            </log>
+            <switch source="get-property('pTipoMovimiento')">
+                <case regex="LEE">
+                    <property description="tipo mov E" name="pTipoMovAbreviado" scope="default" type="STRING" value="E"/>
+                </case>
+                <default>
+                    <property name="pTipoMovAbreviado" scope="default" type="STRING" value="S"/>
+                </default>
+            </switch>
+            <property description="Orden Corte" expression="json-eval($.ordenCorte)" name="pOrdenCorte" scope="default" type="STRING"/>
+            <dblookup description="Lookup valores">
+                <connection>
+                    <pool>
+                        <driver>com.microsoft.sqlserver.jdbc.SQLServerDriver</driver>
+                        <url>jdbc:sqlserver://192.168.1.21\SQLEXPRESS:1433;databaseName=EjemploAnsilta</url>
+                        <user>Axoft</user>
+                        <password>Axoft</password>
+                    </pool>
+                </connection>
+                <statement>
+                    <sql><![CDATA[SELECT MAX(cast(NCOMP_IN_S as int))+1 AS numeroComprobante FROM STA14 WHERE T_COMP =?]]></sql>
+                    <parameter expression="get-property('pTipoMovimiento')" type="VARCHAR"/>
+                    <result column="numeroComprobante" name="pNumeroComprobante"/>
+                </statement>
+                <statement>
+                    <sql><![CDATA[select cod_articu from sta11 where cod_articu =?]]></sql>
+                    <parameter expression="get-property('pCodBarra')" type="VARCHAR"/>
+                    <result column="cod_articu" name="pCodArticulo"/>
+                </statement>
+                <statement>
+                    <sql><![CDATA[select count(1) existe from STA19 where COD_ARTICU = ? and COD_DEPOSI =?]]></sql>
+                    <parameter expression="get-property('pCodArticulo')" type="VARCHAR"/>
+                    <parameter expression="get-property('pDeposito')" type="VARCHAR"/>
+                    <result column="existe" name="pExisteEnDeposito"/>
+                </statement>
+                <statement>
+                    <sql><![CDATA[select convert (int,proximo) as prox from sta17 where talonario = ?]]></sql>
+                    <parameter expression="get-property('pTalonario')" type="VARCHAR"/>
+                    <result column="prox" name="pNumeroTalonario"/>
+                </statement>
+            </dblookup>
+            <log description="Datos operacion" level="custom">
+                <property expression="get-property('pNumeroComprobante')" name="comprobante"/>
+                <property expression="get-property('pCodArticulo')" name="articulo"/>
+                <property expression="get-property('pCantidad')" name="cantidad"/>
+                <property expression="get-property('pTipoMovAbreviado')" name="tipomovabreviado"/>
+                <property expression="get-property('pDeposito')" name="deposito"/>
+                <property expression="get-property('pTalonario')" name="talonario"/>
+                <property expression="get-property('pExisteEnDeposito')" name="existeendeposito"/>
+                <property expression="get-property('pTipoMovimiento')" name="tipomov"/>
+                <property expression="get-property('pNumeroTalonario')" name="numerotalonario"/>
+            </log>
+            <switch description="Inserta o actualiza el articulo en el deposito" source="get-property('pExisteEnDeposito')">
+                <case regex="0">
+                    <property name="FORCE_ERROR_ON_SOAP_FAULT" scope="default" type="STRING" value="true"/>
+                    <payloadFactory media-type="xml">
+                        <format>
+                            <p:request_box xmlns:p="http://ws.wso2.org/dataservice">
+                                <p:crearMovimientoStock xmlns="http://ws.wso2.org/dataservice">
+                                    <nroTalonario xmlns:xs="http://ws.wso2.org/dataservice">$1</nroTalonario>
+                                    <numComprobante xmlns:xs="http://ws.wso2.org/dataservice">$2</numComprobante>
+                                    <tipoMov xmlns:xs="http://ws.wso2.org/dataservice">$3</tipoMov>
+                                    <ordenCorte xmlns:xs="http://ws.wso2.org/dataservice">$4</ordenCorte>
+                                    <talonario xmlns:xs="http://ws.wso2.org/dataservice">$5</talonario>
+                                </p:crearMovimientoStock>
+                                <p:crearMovimientoCabeceraStock xmlns="http://ws.wso2.org/dataservice">
+                                    <cantidad xmlns:xs="http://ws.wso2.org/dataservice">$6</cantidad>
+                                    <cantidadPend xmlns:xs="http://ws.wso2.org/dataservice">$7</cantidadPend>
+                                    <codArticulo xmlns:xs="http://ws.wso2.org/dataservice">$8</codArticulo>
+                                    <deposito xmlns:xs="http://ws.wso2.org/dataservice">$9</deposito>
+                                    <depositoDDE xmlns:xs="http://ws.wso2.org/dataservice">$10</depositoDDE>
+                                    <numComprobante xmlns:xs="http://ws.wso2.org/dataservice">$11</numComprobante>
+                                    <tipoMovimientoAbreviado xmlns:xs="http://ws.wso2.org/dataservice">$12</tipoMovimientoAbreviado>
+                                </p:crearMovimientoCabeceraStock>
+                                <p:updTalonario xmlns="http://ws.wso2.org/dataservice">
+                                    <numTalonario xmlns:xs="http://ws.wso2.org/dataservice">$13</numTalonario>
+                                    <talonario xmlns:xs="http://ws.wso2.org/dataservice">$14</talonario>
+                                </p:updTalonario>
+                                <p:crearArticuloDeposito xmlns="http://ws.wso2.org/dataservice">
+                                    <cantidad xmlns:xs="http://ws.wso2.org/dataservice">$15</cantidad>
+                                    <codArticulo xmlns:xs="http://ws.wso2.org/dataservice">$16</codArticulo>
+                                    <deposito xmlns:xs="http://ws.wso2.org/dataservice">$17</deposito>
+                                </p:crearArticuloDeposito>
+                            </p:request_box>
+                        </format>
+                        <args>
+                            <arg evaluator="xml" expression="get-property('pNumeroTalonario')"/>
+                            <arg evaluator="xml" expression="get-property('pNumeroComprobante')"/>
+                            <arg evaluator="xml" expression="get-property('pTipoMovimiento')"/>
+                            <arg evaluator="xml" expression="get-property('pOrdenCorte')"/>
+                            <arg evaluator="xml" expression="get-property('pTalonario')"/>
+                            <arg evaluator="xml" expression="get-property('pCantidad')"/>
+                            <arg evaluator="xml" expression="get-property('pCantidad')"/>
+                            <arg evaluator="xml" expression="get-property('pCodArticulo')"/>
+                            <arg evaluator="xml" expression="get-property('pDeposito')"/>
+                            <arg evaluator="xml" expression="get-property('pDeposito')"/>
+                            <arg evaluator="xml" expression="get-property('pNumeroComprobante')"/>
+                            <arg evaluator="xml" expression="get-property('pTipoMovAbreviado')"/>
+                            <arg evaluator="xml" expression="get-property('pNumeroTalonario')"/>
+                            <arg evaluator="xml" expression="get-property('pTalonario')"/>
+                            <arg evaluator="xml" expression="get-property('pCantidad')"/>
+                            <arg evaluator="xml" expression="get-property('pCodArticulo')"/>
+                            <arg evaluator="xml" expression="get-property('pDeposito')"/>
+                        </args>
+                    </payloadFactory>
+                    <header name="Action" scope="default" value="urn:request_box"/>
+                    <log description="Mensaje final ins" level="full"/>
+                    <send description="">
+                        <endpoint key="TangoDSS"/>
+                    </send>
+                </case>
+                <default>
+                    <payloadFactory media-type="xml">
+                        <format>
+                            <p:request_box xmlns:p="http://ws.wso2.org/dataservice">
+                                <p:crearMovimientoStock xmlns="http://ws.wso2.org/dataservice">
+                                    <nroTalonario xmlns:xs="http://ws.wso2.org/dataservice">$1</nroTalonario>
+                                    <numComprobante xmlns:xs="http://ws.wso2.org/dataservice">$2</numComprobante>
+                                    <tipoMov xmlns:xs="http://ws.wso2.org/dataservice">$3</tipoMov>
+                                    <ordenCorte xmlns:xs="http://ws.wso2.org/dataservice">$4</ordenCorte>
+                                    <talonario xmlns:xs="http://ws.wso2.org/dataservice">$5</talonario>
+                                </p:crearMovimientoStock>
+                                <p:crearMovimientoCabeceraStock xmlns="http://ws.wso2.org/dataservice">
+                                    <cantidad xmlns:xs="http://ws.wso2.org/dataservice">$6</cantidad>
+                                    <cantidadPend xmlns:xs="http://ws.wso2.org/dataservice">$7</cantidadPend>
+                                    <codArticulo xmlns:xs="http://ws.wso2.org/dataservice">$8</codArticulo>
+                                    <deposito xmlns:xs="http://ws.wso2.org/dataservice">$9</deposito>
+                                    <depositoDDE xmlns:xs="http://ws.wso2.org/dataservice">$10</depositoDDE>
+                                    <numComprobante xmlns:xs="http://ws.wso2.org/dataservice">$11</numComprobante>
+                                    <tipoMovimientoAbreviado xmlns:xs="http://ws.wso2.org/dataservice">$12</tipoMovimientoAbreviado>
+                                </p:crearMovimientoCabeceraStock>
+                                <p:updTalonario xmlns="http://ws.wso2.org/dataservice">
+                                    <numTalonario xmlns:xs="http://ws.wso2.org/dataservice">$13</numTalonario>
+                                    <talonario xmlns:xs="http://ws.wso2.org/dataservice">$14</talonario>
+                                </p:updTalonario>
+                                <p:updArticuloDeposito xmlns="http://ws.wso2.org/dataservice">
+                                    <cantidad xmlns:xs="http://ws.wso2.org/dataservice">$15</cantidad>
+                                    <codArticulo xmlns:xs="http://ws.wso2.org/dataservice">$16</codArticulo>
+                                    <deposito xmlns:xs="http://ws.wso2.org/dataservice">$17</deposito>
+                                </p:updArticuloDeposito>
+                            </p:request_box>
+                        </format>
+                        <args>
+                            <arg evaluator="xml" expression="get-property('pNumeroTalonario')"/>
+                            <arg evaluator="xml" expression="get-property('pNumeroComprobante')"/>
+                            <arg evaluator="xml" expression="get-property('pTipoMovimiento')"/>
+                            <arg evaluator="xml" expression="get-property('pOrdenCorte')"/>
+                            <arg evaluator="xml" expression="get-property('pTalonario')"/>
+                            <arg evaluator="xml" expression="get-property('pCantidad')"/>
+                            <arg evaluator="xml" expression="get-property('pCantidad')"/>
+                            <arg evaluator="xml" expression="get-property('pCodArticulo')"/>
+                            <arg evaluator="xml" expression="get-property('pDeposito')"/>
+                            <arg evaluator="xml" expression="get-property('pDeposito')"/>
+                            <arg evaluator="xml" expression="get-property('pNumeroComprobante')"/>
+                            <arg evaluator="xml" expression="get-property('pTipoMovAbreviado')"/>
+                            <arg evaluator="xml" expression="get-property('pNumeroTalonario')"/>
+                            <arg evaluator="xml" expression="get-property('pTalonario')"/>
+                            <arg evaluator="xml" expression="get-property('pCantidad')"/>
+                            <arg evaluator="xml" expression="get-property('pCodArticulo')"/>
+                            <arg evaluator="xml" expression="get-property('pDeposito')"/>
+                        </args>
+                    </payloadFactory>
+                    <property name="FORCE_ERROR_ON_SOAP_FAULT" scope="default" type="STRING" value="true"/>
+                    <header name="Action" scope="default" value="urn:request_box"/>
+                    <log description="Mensaje final upd" level="full"/>
+                    <send description="">
+                        <endpoint key="TangoDSS"/>
+                    </send>
+                </default>
+            </switch>
+        </inSequence>
+        <outSequence>
+            <log description="Respuesta" level="full"/>
+            <payloadFactory description="" media-type="json">
+                <format>{&#xd;   "response" : {&#xd;        "numeroComprobante" : "$1" &#xd;                       }&#xd;}</format>
+                <args>
+                    <arg evaluator="xml" expression="get-property('pNumeroComprobante')"/>
+                </args>
+            </payloadFactory>
+            <send/>
+        </outSequence>
+        <faultSequence>
+            <log description="Informe de error" level="custom">
+                <property name="text" value="************Error Inesperado******************"/>
+                <property name="code" value="1000"/>
+                <property expression="//detail" name="message"/>
+            </log>
+            <payloadFactory description="Mensaje error" media-type="json">
+                <format>{"response" : {&#xd;                       "errorCode" : "1000", &#xd;                       "errorMessage" : "$1"&#xd;                       }&#xd;}</format>
+                <args>
+                    <arg evaluator="xml" expression="//detail"/>
+                </args>
+            </payloadFactory>
+            <property name="messageType" scope="axis2" type="STRING" value="application/json"/>
+            <property description="Respuesta 404" name="HTTP_SC" scope="axis2" type="STRING" value="404"/>
+            <send/>
+        </faultSequence>
+    </resource>
+</api>

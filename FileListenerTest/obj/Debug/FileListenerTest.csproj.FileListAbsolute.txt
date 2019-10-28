@@ -1,0 +1,15 @@
+F:\usuarios\alumno\Documentos\Visual Studio 2008\Projects\FileListenerTest\FileListenerTest\bin\Debug\FileListenerTest.exe
+F:\usuarios\alumno\Documentos\Visual Studio 2008\Projects\FileListenerTest\FileListenerTest\bin\Debug\FileListenerTest.pdb
+F:\usuarios\alumno\Documentos\Visual Studio 2008\Projects\FileListenerTest\FileListenerTest\bin\Debug\Newtonsoft.Json.dll
+F:\usuarios\alumno\Documentos\Visual Studio 2008\Projects\FileListenerTest\FileListenerTest\bin\Debug\Newtonsoft.Json.pdb
+F:\usuarios\alumno\Documentos\Visual Studio 2008\Projects\FileListenerTest\FileListenerTest\bin\Debug\Newtonsoft.Json.xml
+F:\usuarios\alumno\Documentos\Visual Studio 2008\Projects\FileListenerTest\FileListenerTest\obj\Debug\ResolveAssemblyReference.cache
+F:\usuarios\alumno\Documentos\Visual Studio 2008\Projects\FileListenerTest\FileListenerTest\obj\Debug\FileListenerTest.exe
+F:\usuarios\alumno\Documentos\Visual Studio 2008\Projects\FileListenerTest\FileListenerTest\obj\Debug\FileListenerTest.pdb
+F:\trazalog\ansi-desa-soatango\FileListenerTest\obj\Debug\FileListenerTest.exe
+F:\trazalog\ansi-desa-soatango\FileListenerTest\obj\Debug\FileListenerTest.pdb
+F:\trazalog\ansi-desa-soatango\FileListenerTest\bin\Debug\FileListenerTest.exe
+F:\trazalog\ansi-desa-soatango\FileListenerTest\bin\Debug\FileListenerTest.pdb
+F:\trazalog\ansi-desa-soatango\FileListenerTest\bin\Debug\Newtonsoft.Json.pdb
+F:\trazalog\ansi-desa-soatango\FileListenerTest\bin\Debug\Newtonsoft.Json.xml
+F:\trazalog\ansi-desa-soatango\FileListenerTest\obj\Debug\ResolveAssemblyReference.cache
